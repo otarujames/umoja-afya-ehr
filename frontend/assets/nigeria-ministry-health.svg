@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
+  <!-- Eagle at top -->
+  <circle cx="150" cy="60" r="35" fill="#8B4513"/>
+  <polygon points="150,30 160,50 140,50" fill="#8B4513"/>
+  
+  <!-- Left horse -->
+  <circle cx="80" cy="120" r="25" fill="white" stroke="black" stroke-width="1"/>
+  <polygon points="80,145 75,165 85,165" fill="black"/>
+  
+  <!-- Right horse -->
+  <circle cx="220" cy="120" r="25" fill="white" stroke="black" stroke-width="1"/>
+  <polygon points="220,145 215,165 225,165" fill="black"/>
+  
+  <!-- Center shield -->
+  <path d="M 150 80 L 120 130 L 120 220 Q 120 250 150 270 Q 180 250 180 220 L 180 130 Z" fill="white" stroke="black" stroke-width="2"/>
+  
+  <!-- Shield sections -->
+  <rect x="120" y="130" width="60" height="30" fill="green"/>
+  <rect x="120" y="160" width="60" height="30" fill="white"/>
+  <rect x="120" y="190" width="60" height="30" fill="black"/>
+  
+  <!-- Banner at bottom -->
+  <rect x="100" y="240" width="100" height="35" fill="#2F5233" stroke="black" stroke-width="2"/>
+  <text x="150" y="263" font-size="14" font-weight="bold" text-anchor="middle" font-family="Arial" fill="white">FEDERAL MINISTRY</text>
+  <text x="150" y="280" font-size="14" font-weight="bold" text-anchor="middle" font-family="Arial" fill="white">OF HEALTH</text>
+</svg>

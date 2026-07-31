@@ -1,0 +1,34 @@
+version: 1
+principles:
+  - least_privilege
+  - treatment_relationship
+  - facility_scope
+  - purpose_of_use
+  - sensitive_data_segmentation
+  - break_glass_audit
+roles:
+  physician:
+    permissions: [patient.read, encounter.manage, note.create, note.sign, order.create, result.acknowledge, medication.order, discharge.complete, referral.create]
+  nurse:
+    permissions: [patient.read, tracker.update, triage.document, flowsheet.manage, medication.administer, note.create, handoff.manage]
+  registration:
+    permissions: [mpi.search, patient.register, demographics.update, consent.capture, coverage.verify, appointment.manage, arrival.manage]
+  pharmacy:
+    permissions: [patient.read_limited, medication.verify, medication.dispense, inventory.issue, formulary.manage]
+  laboratory:
+    permissions: [patient.read_limited, specimen.manage, result.enter, result.validate, critical_result.route]
+  operations:
+    permissions: [tracker.read, adt.manage, bed.manage, transport.manage, evs.manage, capacity.read]
+  finance:
+    permissions: [coverage.read, charge.post, claim.manage, denial.manage, payment.receive, reconciliation.manage]
+  admin:
+    permissions: [user.manage, role.manage, facility.configure, interface.manage, audit.read, release.manage, terminology.manage]
+privileged_actions:
+  - audit.export
+  - user.disable
+  - role.change
+  - break_glass
+  - patient.merge
+  - configuration.publish
+  - interface.replay
+mfa_required_roles: [physician, operations, finance, admin]

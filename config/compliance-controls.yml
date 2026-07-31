@@ -1,0 +1,54 @@
+metadata:
+  product: Umoja Afya Enterprise EHR
+  release: 10.12.0
+  purpose: Implementation evidence map for security, privacy, availability and healthcare-data controls
+  assurance_boundary: Alignment and readiness only; certification or legal compliance requires organizational implementation and independent assessment
+frameworks:
+  hipaa_security_rule:
+    scope: Administrative, physical and technical safeguards for electronic protected health information
+    control_groups:
+      - id: HIPAA-RISK
+        objective: Risk analysis and risk-management process
+        implementation: Threat model, risk register, DPIA template, vulnerability-management procedure
+        evidence: [docs/THREAT_MODEL.md, docs/DPIA_TEMPLATE.md, docs/CONTROL_EVIDENCE_INDEX.md]
+      - id: HIPAA-ACCESS
+        objective: Unique identity, authorization, minimum necessary access and emergency access
+        implementation: Per-user function/department/facility access matrix, Argon2id authentication, session revocation, break-glass audit
+        evidence: [backend/app/security.py, backend/app/access_control.py, backend/app/operational_models.py]
+      - id: HIPAA-AUDIT
+        objective: Record and examine system activity
+        implementation: Mutation audit events, access changes, patient-context events, workqueue history and emergency-access log
+        evidence: [backend/app/routers/audit.py, config/audit-events.yml]
+      - id: HIPAA-INTEGRITY
+        objective: Protect ePHI from improper alteration or destruction
+        implementation: Signed clinical notes, immutable history events, controlled order and appointment course changes, database constraints and backups
+        evidence: [docs/BACKUP_RESTORE_TEST.md, backend/app/enterprise_models.py]
+      - id: HIPAA-TRANSMISSION
+        objective: Protect data in transit
+        implementation: TLS reverse-proxy profile, secure headers, production CORS allowlist and private database network
+        evidence: [deploy/nginx/umoja-afya.conf, docker-compose.production.yml, backend/app/middleware.py]
+  soc_2_trust_services_criteria:
+    categories:
+      security:
+        implementation: Access matrix, secure authentication, rate limiting, security headers, vulnerability and incident procedures
+      availability:
+        implementation: Health checks, PostgreSQL persistence, backup/restore, recovery objectives, downtime procedures
+      processing_integrity:
+        implementation: Database constraints, workflow state machines, audit histories, validation and automated tests
+      confidentiality:
+        implementation: Patient-context boundaries, network segmentation, encrypted transport, controlled exports and audit
+      privacy:
+        implementation: Consent fields, proxy context, access accounting, retention configuration and DPIA process
+    evidence_index: docs/CONTROL_EVIDENCE_INDEX.md
+  iso_iec_27001_2022:
+    system: Information Security Management System readiness
+    implementation_domains: [governance, asset_management, access_control, cryptography, operations_security, supplier_security, incident_management, business_continuity, compliance]
+  iso_iec_27701_2025:
+    system: Privacy Information Management System readiness
+    implementation_domains: [controller_processor_roles, lawful_purpose, data_subject_workflows, minimization, retention, disclosure, privacy_risk]
+  iso_27799_2025:
+    system: Health information security controls
+    implementation_domains: [clinical_confidentiality, healthcare_identity, emergency_access, health_record_integrity, audit, availability, medical_workflow_safety]
+  iso_22301_2019:
+    system: Business continuity management readiness
+    implementation_domains: [business_impact_analysis, recovery_objectives, backups, downtime, incident_command, exercises, improvement]

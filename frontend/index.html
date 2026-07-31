@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#008c76" />
+  <meta name="description" content="Umoja Afya record-centric enterprise EHR for Tanzania." />
+  <title>Umoja Afya EHR</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="/assets/umoja-logo.svg" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="offline-banner">Offline mode: cached screens remain available; clinical transactions will queue until connectivity returns.</div>
+
+
+  <div id="countryLanding" class="country-landing">
+    <header class="country-header"><div class="country-brand"><img src="/assets/umoja-logo.svg" alt="Umoja Afya"><div><strong>Umoja Afya EHR</strong><span>One record. One region. Better care.</span></div></div><div class="country-assurance"><span>◈ Secure</span><span>▣ Compliance-ready</span><span>☁ Always available</span></div></header>
+    <main class="country-main compact-landing">
+      <section class="country-hero-compact"><div><p class="eyebrow">Regional practice context</p><h1>Where are you practicing today?</h1><p>Choose a country to load the correct ministry identity, clinical vocabulary and authorized sign-in context.</p><div class="hero-chips"><span>Country-isolated access</span><span>Facility context after login</span><span>English + Kiswahili</span></div></div><div class="landing-art" aria-hidden="true"><span>✚</span><b>Connected care across Africa</b></div></section>
+      <section class="country-card-grid compact-cards">
+        <button class="country-card" data-country-select="TZ"><span class="country-code">TZ</span><img src="/assets/tanzania-coat-of-arms.png" alt="Tanzania coat of arms"><div><strong>Tanzania</strong><span>Ministry of Health</span></div><em>Continue</em></button>
+        <button class="country-card" data-country-select="KE"><span class="country-code">KE</span><img src="/assets/kenya-ministry-health.png" alt="Kenya Ministry of Health"><div><strong>Kenya</strong><span>Ministry of Health</span></div><em>Continue</em></button>
+        <button class="country-card" data-country-select="NG"><span class="country-code">NG</span><img src="/assets/nigeria-ministry-health.png" alt="Nigeria Federal Ministry of Health"><div><strong>Nigeria</strong><span>Federal Ministry of Health</span></div><em>Continue</em></button>
+      </section>
+      <section class="landing-lower-grid"><article class="quick-access-card"><div class="quick-icon">1</div><div><strong>Select country</strong><span>Loads branding and policy context.</span></div><div class="quick-icon">2</div><div><strong>Sign in securely</strong><span>Your access matrix is checked.</span></div><div class="quick-icon">3</div><div><strong>Choose facility & unit</strong><span>Available after login in Change Context.</span></div></article><article class="context-callout"><span class="callout-icon">⌘</span><div><strong>Fast, focused, private</strong><p>Hospital and unit lists stay behind authentication. Only facilities assigned to your account appear.</p></div></article></section>
+    </main>
+  </div>
+  <div id="loginOverlay" class="login-overlay hidden">
+    <section class="login-panel" aria-labelledby="loginTitle">
+      <div class="login-hero">
+        <div class="government-login-logo"><img id="ministryLogo" src="/assets/tanzania-coat-of-arms.png" alt="Government of Tanzania coat of arms" /><div><strong id="ministryCountryName">United Republic of Tanzania</strong><span id="ministryName">Ministry of Health · National Electronic Health Record</span></div></div>
+        <div class="brand-lockup login-brand">
+          <img src="/assets/umoja-logo.svg" alt="Umoja Afya logo" />
+          <div>
+            <p id="loginCountryEyebrow" class="eyebrow">United Republic of Tanzania</p>
+            <h1 id="loginTitle">Umoja Afya EHR</h1>
+            <p>One Patient. One Record. Better Care.</p>
+          </div>
+        </div>
+        <div id="loginNetwork" class="login-network">Facility context is selected after sign-in</div>
+      </div>
+      <div class="login-body">
+        <div>
+          <h2>Sign in</h2>
+          <p class="muted">Provider-facing electronic health record and hospital operations environment.</p>
+          <div id="signInPanel">
+            <div class="login-credentials">
+              <label class="field"><span>Username</span><input id="loginUsername" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" /></label>
+              <label class="field"><span>Password</span><input id="loginPassword" type="password" autocomplete="current-password" /></label>
+              <button id="loginSubmit" class="btn btn-primary login-submit" type="button">Sign in</button>
+            </div>
+            <p id="loginSecurityNote" class="login-security-note">Use your assigned institutional account. No account names or passwords are preloaded by the application.</p>
+          </div>
+          <div id="firstRunPanel" class="first-run-panel hidden">
+            <p class="eyebrow">Secure first-run setup</p>
+            <h2>Create the first administrator</h2>
+            <p class="muted">Use the one-time setup token generated on the server. Choose a unique administrator username and password; nothing is prefilled or stored in the browser.</p>
+            <div class="first-run-grid">
+              <label class="field full"><span>One-time setup token</span><input id="setupToken" type="password" autocomplete="off" /></label>
+              <label class="field"><span>Administrator username</span><input id="setupUsername" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" /></label>
+              <label class="field"><span>Display name</span><input id="setupDisplayName" type="text" autocomplete="name" /></label>
+              <label class="field full"><span>Primary facility</span><select id="setupFacility"></select></label>
+              <label class="field"><span>New password</span><input id="setupPassword" type="password" autocomplete="new-password" /></label>
+              <label class="field"><span>Confirm password</span><input id="setupPasswordConfirm" type="password" autocomplete="new-password" /></label>
+            </div>
+            <button id="setupSubmit" class="btn btn-primary login-submit" type="button">Create administrator</button>
+            <p class="login-security-note">After setup, rotate the bootstrap token and enable institutional SSO/MFA before clinical go-live.</p>
+          </div>
+        </div>
+      </div>
+      <div class="login-footer">
+        <span id="loginFooterCountry">United Republic of Tanzania · Ministry of Health</span>
+        <span id="apiStatus" class="api-badge">● API connecting</span>
+      </div>
+    </section>
+  </div>
+
+  <div id="app" class="ehr-shell" aria-hidden="true">
+    <header class="ehr-header">
+      <div class="brand-zone">
+        <button id="launcherButton" class="app-launcher-button" aria-label="Open application menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="ehr-brand">
+          <img src="/assets/umoja-logo.svg" alt="Umoja Afya logo" />
+          <div><strong>Umoja Afya EHR</strong><small>Care. Connect. Community.</small></div>
+        </div>
+        <label class="facility-card">
+          <span class="facility-label">Facility context</span>
+          <select id="facilitySelect" aria-label="Facility context"></select>
+          <small>Dar es Salaam, Tanzania</small>
+        </label>
+      </div>
+      <button id="globalSearchButton" class="global-patient-search" type="button">
+        <span class="search-glyph">⌕</span>
+        <span class="search-placeholder">Search patient by name, MRN, phone, NIDA, or visit ID...</span>
+        <kbd>Ctrl + K</kbd>
+      </button>
+      <div class="header-actions">
+        <button id="messagesButton" class="header-action" type="button"><span class="header-icon">✉</span><span>Messages</span><b id="messageCount" class="red-count">0</b></button>
+        <button id="notificationsButton" class="header-action" type="button"><span class="header-icon">♧</span><span>Alerts</span><b id="notificationCount" class="amber-count">4</b></button>
+        <button class="header-action" type="button"><span class="header-icon">?</span><span>Help</span></button>
+        <button id="languageToggle" class="language-switch" type="button"><span class="active-language">EN</span><span>SW</span></button>
+        <button id="userMenuButton" class="profile-menu-button" type="button">
+          <img id="userAvatar" src="/assets/avatars/neema-k.png" alt="User profile" />
+          <span id="userInitials" class="visually-hidden">NK</span>
+          <span><strong id="userName">Neema K.</strong><small id="userRole">Registration Clerk</small></span>
+          <span class="chevron">⌄</span>
+        </button>
+      </div>
+    </header>
+
+    <nav id="moduleNav" class="module-navigation" aria-label="Module navigation"></nav>
+
+    <aside id="sidebar" class="quick-rail">
+      <div id="primaryNav" class="quick-rail-nav" aria-label="Quick navigation"></div>
+    </aside>
+
+    <nav id="mobileWorkflowNav" class="mobile-workflow-nav" aria-label="Mobile workflow navigation"></nav>
+
+    <section id="launcherPanel" class="activity-launcher hidden" aria-label="Application menu">
+      <div class="launcher-search"><span>⌕</span><input id="launcherSearch" type="search" placeholder="Search activities" /></div>
+      <div class="launcher-columns">
+        <aside id="launcherMemory" class="launcher-memory" aria-label="Pinned and recent activities"></aside>
+        <div id="launcherCategories" class="launcher-categories"></div>
+        <div id="launcherActivities" class="launcher-activities"></div>
+      </div>
+      <div class="launcher-footer"><button data-route="admin">⚙ My Settings</button><button data-route="dashboard">☆ Recents & Favorites</button><button data-route="analytics">▥ Analytics Menus</button></div>
+    </section>
+
+    <main id="mainContent" class="ehr-workspace" tabindex="-1"></main>
+
+    <footer class="ehr-statusbar">
+      <div><strong id="statusFacilityName">Selected facility</strong><span id="statusFacilityCode">Facility context</span><i class="online-dot"></i><span>Online</span></div>
+      <div><strong>System Status</strong><span class="system-good">✓ All Systems Operational</span></div>
+      <div><span id="statusDate">—</span><span id="statusTime">—</span><span>Version 10.12.0</span><span>▣</span></div>
+    </footer>
+
+    <div id="workspaceRole" class="visually-hidden">Workspace</div>
+    <button id="sidebarToggle" class="visually-hidden" aria-label="Toggle navigation"></button>
+  </div>
+
+  <div id="modalBackdrop" class="modal-backdrop hidden" role="presentation">
+    <section id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <header><div><p class="eyebrow" id="modalEyebrow">Umoja Afya workflow</p><h2 id="modalTitle">Action</h2></div><button id="modalClose" class="icon-button">×</button></header>
+      <div id="modalBody" class="modal-body"></div>
+      <footer id="modalFooter" class="modal-footer"></footer>
+    </section>
+  </div>
+  <div id="toastRegion" class="toast-region" aria-live="polite"></div>
+  <script src="/app.js"></script>
+</body>
+</html>

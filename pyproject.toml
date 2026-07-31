@@ -1,0 +1,9 @@
+[project]
+name = "umoja-afya-enterprise-ehr"
+version = "10.1.0"
+description = "Tanzania-focused enterprise electronic health record platform"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

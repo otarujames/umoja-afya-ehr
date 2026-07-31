@@ -1,0 +1,22 @@
+{
+  "name": "Umoja Afya Enterprise EHR",
+  "short_name": "Umoja Afya EHR",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f7f9",
+  "theme_color": "#008c76",
+  "icons": [
+    {
+      "src": "/assets/umoja-logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "scope": "/",
+  "orientation": "any",
+  "categories": [
+    "medical",
+    "productivity"
+  ],
+  "description": "Secure provider-facing Tanzania enterprise electronic health record."
+}

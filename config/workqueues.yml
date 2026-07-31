@@ -1,0 +1,43 @@
+version: 1
+workqueues:
+  - code: MISSING_DOCUMENTS_DAILY
+    category: HEALTH_RECORDS
+    owner: Health Records Team
+    sla_hours: 24
+  - code: WALKIN_REG_FOLLOWUP
+    category: REGISTRATION
+    owner: Front Desk Team A
+    sla_hours: 4
+  - code: NHIF_ELIGIBILITY_PENDING
+    category: COVERAGE
+    owner: NHIF Verification Team
+    sla_hours: 8
+  - code: COVERAGE_EXCEPTIONS
+    category: BILLING
+    owner: Coverage Review Team
+    sla_hours: 24
+  - code: UNCLOSED_ENCOUNTERS
+    category: CLINICAL_OPERATIONS
+    owner: Care Coordination Team
+    sla_hours: 24
+  - code: CLAIM_EDIT
+    category: CLAIMS
+    owner: Claim Editors
+    sla_hours: 48
+  - code: AUTHORIZATION_FOLLOWUP
+    category: AUTHORIZATION
+    owner: Authorization Team
+    sla_hours: 24
+  - code: BED_ASSIGNMENT_PENDING
+    category: PATIENT_ACCESS
+    owner: Bed Management Team
+    sla_hours: 2
+  - code: REFERRAL_CLOSURE
+    category: REFERRAL
+    owner: Referral Coordinators
+    sla_hours: 72
+  - code: FRONT_DESK_ARRIVAL_EXCEPTIONS
+    category: REGISTRATION
+    owner: Front Desk Team A
+    sla_hours: 4
+actions: [ASSIGN, ROUTE, DEFER, RESUME, COMPLETE, REOPEN, CANCEL]

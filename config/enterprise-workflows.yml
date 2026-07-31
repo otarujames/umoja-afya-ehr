@@ -1,0 +1,95 @@
+version: 1
+state_machines:
+  appointment:
+  - SCHEDULED
+  - CONFIRMED
+  - ARRIVED
+  - COMPLETED
+  - NO_SHOW
+  - CANCELLED
+  referral:
+  - NEW
+  - ACCEPTED
+  - SCHEDULED
+  - IN_PROGRESS
+  - COMPLETED
+  - CLOSED
+  - DECLINED
+  bed:
+  - AVAILABLE
+  - ASSIGNED
+  - OCCUPIED
+  - DIRTY
+  - CLEANING
+  - BLOCKED
+  note:
+  - DRAFT
+  - PENDED
+  - SIGNED
+  - COSIGN_REQUIRED
+  - AMENDED
+  medication_order:
+  - ACTIVE
+  - ON_HOLD
+  - DISCONTINUED
+  - COMPLETED
+  claim:
+  - DRAFT
+  - READY
+  - SUBMITTED
+  - ACCEPTED
+  - DENIED
+  - PAID
+  - VOID
+  work_item:
+  - OPEN
+  - IN_PROGRESS
+  - COMPLETED
+  - CANCELLED
+  module_activity:
+  - NEW
+  - IN_PROGRESS
+  - WAITING
+  - COMPLETED
+  - CANCELLED
+closed_loop_rules:
+  referral_closure_requires_return_summary: true
+  critical_result_requires_acknowledgement: true
+  medication_given_requires_pharmacy_verification: true
+  bed_discharge_routes_to_evs: true
+  signed_note_requires_addendum_for_change: true
+  claim_submission_creates_interface_event: true
+  public_health_event_creates_national_outbox_event: true
+workflows:
+  telehealth_session:
+    states:
+    - SCHEDULED
+    - READY
+    - IN_PROGRESS
+    - PAUSED
+    - COMPLETED
+    - CANCELLED
+    transitions:
+      SCHEDULED:
+      - START
+      - CANCEL
+      READY:
+      - START
+      - CANCEL
+      IN_PROGRESS:
+      - PAUSE
+      - COMPLETE
+      - CANCEL
+      PAUSED:
+      - RESUME
+      - COMPLETE
+      - CANCEL
+      COMPLETED: []
+      CANCELLED: []
+    closed_loop:
+    - appointment_created
+    - patient_notified
+    - readiness_task
+    - session_audit
+    - documentation_and_orders
+    - follow_up

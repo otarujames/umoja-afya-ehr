@@ -1,0 +1,228 @@
+from __future__ import annotations
+
+from datetime import date, datetime, time, timezone
+
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, String, Text, Time, UniqueConstraint
+from sqlalchemy.orm import Mapped, mapped_column
+
+from .database import Base
+from .enterprise_models import public_id
+
+
+def utcnow() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+class ServicePoint(Base):
+    __tablename__ = "service_point"
+    __table_args__ = (UniqueConstraint("facility_id", "code", name="uq_service_point_facility_code"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    service_point_id: Mapped[str] = mapped_column(String(80), unique=True, index=True, default=lambda: public_id("SP"))
+    facility_id: Mapped[int] = mapped_column(ForeignKey("facility.id", ondelete="CASCADE"), index=True)
+    code: Mapped[str] = mapped_column(String(80), index=True)
+    name: Mapped[str] = mapped_column(String(160))
+    department: Mapped[str] = mapped_column(String(120), index=True)
+    clinic: Mapped[str] = mapped_column(String(160), index=True)
+    room: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    scheduling_model: Mapped[str] = mapped_column(String(80), default="PUBLIC_DUTY_ROSTER")
+    queue_capacity: Mapped[int] = mapped_column(Integer, default=20)
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class DutyRoster(Base):
+    __tablename__ = "duty_roster"
+    __table_args__ = (UniqueConstraint("service_point_id", "roster_date", "shift_start", name="uq_duty_roster_shift"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    roster_id: Mapped[str] = mapped_column(String(80), unique=True, index=True, default=lambda: public_id("ROSTER"))
+    service_point_id: Mapped[int] = mapped_column(ForeignKey("service_point.id", ondelete="CASCADE"), index=True)
+    roster_date: Mapped[date] = mapped_column(Date, index=True)
+    shift_start: Mapped[time] = mapped_column(Time)
+    shift_end: Mapped[time] = mapped_column(Time)
+    team_name: Mapped[str] = mapped_column(String(160))
+    lead_provider: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    staff_count: Mapped[int] = mapped_column(Integer, default=1)
+    status: Mapped[str] = mapped_column(String(40), default="ACTIVE", index=True)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class WalkInEpisode(Base):
+    __tablename__ = "walk_in_episode"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    walkin_id: Mapped[str] = mapped_column(String(80), unique=True, index=True, default=lambda: public_id("WALK"))
+    patient_id: Mapped[int | None] = mapped_column(ForeignKey("patient.id"), nullable=True, index=True)
+    encounter_id: Mapped[int | None] = mapped_column(ForeignKey("encounter.id"), nullable=True, index=True)
+    facility_id: Mapped[int] = mapped_column(ForeignKey("facility.id"), index=True)
+    service_point_id: Mapped[int | None] = mapped_column(ForeignKey("service_point.id"), nullable=True, index=True)
+    reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    status: Mapped[str] = mapped_column(String(80), default="SEARCH_OR_CREATE", index=True)
+    coverage_route: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    queue_name: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    created_by: Mapped[str] = mapped_column(String(160))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
+    arrived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
+
+
+class WorkQueueDefinition(Base):
+    __tablename__ = "work_queue_definition"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    queue_id: Mapped[str] = mapped_column(String(80), unique=True, index=True, default=lambda: public_id("WQ"))
+    code: Mapped[str] = mapped_column(String(120), unique=True, index=True)
+    name: Mapped[str] = mapped_column(String(200))
+    category: Mapped[str] = mapped_column(String(80), index=True)
+    service_area: Mapped[str] = mapped_column(String(120), index=True)
+    owner_team: Mapped[str] = mapped_column(String(160), index=True)
+    facility_code: Mapped[str | None] = mapped_column(String(80), nullable=True, index=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    routing_rule_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    sla_hours: Mapped[int] = mapped_column(Integer, default=24)
+    active: Mapped[bool] = mapped_column(Boolean, default=True, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
+
+
+class WorkQueueItem(Base):
+    __tablename__ = "work_queue_item"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    item_id: Mapped[str] = mapped_column(String(80), unique=True, index=True, default=lambda: public_id("WQI"))
+    queue_definition_id: Mapped[int] = mapped_column(ForeignKey("work_queue_definition.id", ondelete="CASCADE"), index=True)
+    patient_id: Mapped[int | None] = mapped_column(ForeignKey("patient.id"), nullable=True, index=True)
+    encounter_id: Mapped[int | None] = mapped_column(ForeignKey("encounter.id"), nullable=True, index=True)
+    appointment_id: Mapped[int | None] = mapped_column(ForeignKey("appointment.id"), nullable=True, index=True)
+    title: Mapped[str] = mapped_column(String(240))
+    reason: Mapped[str] = mapped_column(Text)
+    priority: Mapped[str] = mapped_column(String(40), default="ROUTINE", index=True)
+    status: Mapped[str] = mapped_column(String(40), default="ACTIVE", index=True)
+    assigned_to: Mapped[str | None] = mapped_column(String(160), nullable=True, index=True)
+    due_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
+    deferred_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_by: Mapped[str] = mapped_column(String(160), default="Workflow Engine")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
+    closed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class WorkQueueEvent(Base):
+    __tablename__ = "work_queue_event"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    event_id: Mapped[str] = mapped_column(String(80), unique=True, index=True, default=lambda: public_id("WQEVT"))
+    work_queue_item_id: Mapped[int] = mapped_column(ForeignKey("work_queue_item.id", ondelete="CASCADE"), index=True)
+    action: Mapped[str] = mapped_column(String(80), index=True)
+    status_before: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    status_after: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    actor: Mapped[str] = mapped_column(String(160))
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
+
+
+class WorkflowNotification(Base):
+    __tablename__ = "workflow_notification"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    notification_id: Mapped[str] = mapped_column(String(80), unique=True, index=True, default=lambda: public_id("NOTIFY"))
+    event_type: Mapped[str] = mapped_column(String(80), index=True)
+    facility_code: Mapped[str] = mapped_column(String(80), index=True)
+    patient_id: Mapped[int | None] = mapped_column(ForeignKey("patient.id"), nullable=True, index=True)
+    encounter_id: Mapped[int | None] = mapped_column(ForeignKey("encounter.id"), nullable=True, index=True)
+    audience: Mapped[str] = mapped_column(String(160), default="CLINICAL_WORKFLOW")
+    message_en: Mapped[str] = mapped_column(String(400))
+    message_sw: Mapped[str] = mapped_column(String(400))
+    payload_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class UserSession(Base):
+    __tablename__ = "user_session"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    session_id: Mapped[str] = mapped_column(String(80), unique=True, index=True, default=lambda: public_id("SES"))
+    user_account_id: Mapped[int] = mapped_column(ForeignKey("user_account.id", ondelete="CASCADE"), index=True)
+    token_jti: Mapped[str] = mapped_column(String(96), unique=True, index=True)
+    issued_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    source_ip: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    user_agent: Mapped[str | None] = mapped_column(String(500), nullable=True)
+
+
+class BreakGlassAccess(Base):
+    __tablename__ = "break_glass_access"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    access_id: Mapped[str] = mapped_column(String(80), unique=True, index=True, default=lambda: public_id("BREAK"))
+    user_account_id: Mapped[int] = mapped_column(ForeignKey("user_account.id"), index=True)
+    patient_id: Mapped[int] = mapped_column(ForeignKey("patient.id"), index=True)
+    encounter_id: Mapped[int | None] = mapped_column(ForeignKey("encounter.id"), nullable=True, index=True)
+    reason: Mapped[str] = mapped_column(Text)
+    emergency_type: Mapped[str] = mapped_column(String(80), default="PATIENT_SAFETY")
+    status: Mapped[str] = mapped_column(String(40), default="ACTIVE", index=True)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    reviewed_by: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class PrintJob(Base):
+    __tablename__ = "print_job"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    job_id: Mapped[str] = mapped_column(String(80), unique=True, index=True, default=lambda: public_id("PRN"))
+    patient_id: Mapped[int] = mapped_column(ForeignKey("patient.id"), index=True)
+    encounter_id: Mapped[int | None] = mapped_column(ForeignKey("encounter.id"), nullable=True, index=True)
+    facility_code: Mapped[str] = mapped_column(String(80), index=True)
+    template_code: Mapped[str] = mapped_column(String(100), index=True)
+    template_name: Mapped[str] = mapped_column(String(200))
+    copies: Mapped[int] = mapped_column(Integer, default=1)
+    language: Mapped[str] = mapped_column(String(10), default="en")
+    printer_name: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    status: Mapped[str] = mapped_column(String(40), default="QUEUED", index=True)
+    payload_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    requested_by: Mapped[str] = mapped_column(String(160))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class CoverageVerification(Base):
+    __tablename__ = "coverage_verification"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    verification_id: Mapped[str] = mapped_column(String(80), unique=True, index=True, default=lambda: public_id("ELIG"))
+    patient_id: Mapped[int] = mapped_column(ForeignKey("patient.id"), index=True)
+    encounter_id: Mapped[int | None] = mapped_column(ForeignKey("encounter.id"), nullable=True, index=True)
+    payer: Mapped[str] = mapped_column(String(160), index=True)
+    member_number: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    service: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    status: Mapped[str] = mapped_column(String(40), default="PENDING", index=True)
+    response_code: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    response_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    copay_amount: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    requested_by: Mapped[str] = mapped_column(String(160))
+    requested_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class TravelScreening(Base):
+    __tablename__ = "travel_screening"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    screening_id: Mapped[str] = mapped_column(String(80), unique=True, index=True, default=lambda: public_id("SCR"))
+    patient_id: Mapped[int] = mapped_column(ForeignKey("patient.id"), index=True)
+    encounter_id: Mapped[int | None] = mapped_column(ForeignKey("encounter.id"), nullable=True, index=True)
+    screening_type: Mapped[str] = mapped_column(String(80), default="TRAVEL_AND_COMMUNICABLE_DISEASE")
+    responses_json: Mapped[str] = mapped_column(Text)
+    risk_level: Mapped[str] = mapped_column(String(40), default="LOW", index=True)
+    disposition: Mapped[str] = mapped_column(String(200))
+    status: Mapped[str] = mapped_column(String(40), default="COMPLETED", index=True)
+    completed_by: Mapped[str] = mapped_column(String(160))
+    completed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)

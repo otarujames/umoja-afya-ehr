@@ -1,0 +1,32 @@
+integrations:
+  dhis2:
+    enabled: false
+    base_url: https://replace-with-government-endpoint.example
+    mode: aggregate_reporting
+  eidsr:
+    enabled: false
+    base_url: https://replace-with-government-endpoint.example
+    mode: notifiable_events
+  elmis_msd:
+    enabled: false
+    base_url: https://replace-with-government-endpoint.example
+    mode: stock_and_orders
+  nhif_uhi:
+    enabled: false
+    base_url: https://replace-with-payer-endpoint.example
+    mode: eligibility_authorization_claims
+  gepg:
+    enabled: false
+    base_url: https://replace-with-payment-endpoint.example
+    mode: billing_and_reconciliation
+  nida:
+    enabled: false
+    base_url: https://replace-with-authorized-identity-endpoint.example
+    mode: identity_verification
+  hfr:
+    enabled: false
+    base_url: https://replace-with-facility-registry-endpoint.example
+    mode: facility_registry
+security:
+  credentials_source: external_secret_manager
+  no_credentials_in_repository: true

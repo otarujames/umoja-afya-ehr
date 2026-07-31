@@ -1,0 +1,15 @@
+{
+  "release": "10.12.0",
+  "checks": {
+    "no_prefilled_login": true,
+    "first_run_setup": true,
+    "generated_review_secrets": true,
+    "mobile_responsive": true,
+    "api_not_cached": true,
+    "reactive_facility_status": true,
+    "personalization": true,
+    "transcription_model_egress": true,
+    "clean_release_image": true
+  },
+  "errors": []
+}

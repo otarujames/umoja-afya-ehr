@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: umoja-afya-config
+data:
+  UMOJA_ENVIRONMENT: production
+  UMOJA_SCHEMA_AUTO_CREATE: "false"
+  UMOJA_SEED_DEMO_DATA: "false"
+  UMOJA_ENFORCE_AUTH: "true"
+  UMOJA_ENFORCE_RBAC: "true"
+  UMOJA_DEMO_CREDENTIALS: "false"
+  UMOJA_API_DOCS_ENABLED: "false"
+  UMOJA_DB_HOST: postgres
+  UMOJA_DB_PORT: "5432"
+  UMOJA_DB_NAME: umoja_afya
+  UMOJA_DB_USER: umoja
+  UMOJA_DB_SSLMODE: require
+  UMOJA_CORS_ORIGINS: https://ehr.health.go.tz
+  UMOJA_ALLOWED_HOSTS: ehr.health.go.tz
+  TZ: Africa/Dar_es_Salaam
+  DATA_RESIDENCY: Tanzania

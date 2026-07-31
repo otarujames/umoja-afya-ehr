@@ -1,0 +1,17 @@
+# Template accepted by scripts/import_hfr_facilities.py and POST /api/v1/facilities/import-hfr.
+# Replace the sample with the Ministry-approved current HFR master-facility export.
+facilities:
+  - code: "100097-5"
+    hfr_code: "100097-5"
+    name: "AMANA"
+    facility_type: "Regional Referral Hospital"
+    region: "Dar es Salaam Region"
+    council: "Ilala MC"
+    ownership_category: "Public"
+    ownership_authority: "MoH"
+    hierarchy_level: "Regional"
+    parent_code: null
+    relation: "Government health system"
+actor: "ICT Administrator"
+source_system: "Approved Tanzania HFR master-facility export"
+grant_to_system_admins: true
