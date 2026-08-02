@@ -1,4 +1,5 @@
 from __future__ import annotations
+import gzip
 
 import secrets
 import time
@@ -19,6 +20,33 @@ from .database import SessionLocal
 from .enterprise_models import UserAccount
 from .offline_models import IdempotencyReceipt, OfflineDevice
 from .security import decode_token
+
+
+
+def _safe_idempotency_response_text(payload: bytes | bytearray | str | None) -> str:
+    """Convert a response body into PostgreSQL-safe text.
+
+    Starlette may return a gzip-compressed body after response middleware has
+    executed. PostgreSQL TEXT columns cannot contain NUL bytes, so compressed
+    responses must be decompressed before persistence.
+    """
+    if payload is None:
+        return ""
+
+    if isinstance(payload, str):
+        return payload.replace("\x00", "")
+
+    raw = bytes(payload)
+
+    if raw.startswith(b"\x1f\x8b"):
+        try:
+            raw = gzip.decompress(raw)
+        except (OSError, EOFError):
+            # Preserve request completion even if the compressed stream is
+            # malformed. NUL removal below still guarantees PostgreSQL safety.
+            pass
+
+    return raw.decode("utf-8", errors="replace").replace("\x00", "")
 
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
@@ -166,7 +194,7 @@ class IdempotencyMiddleware(BaseHTTPMiddleware):
             raise
 
         content_type = response.headers.get("content-type", "application/json")
-        response_text = response_body.decode("utf-8", errors="replace")
+        response_text = _safe_idempotency_response_text(response_body)
         with SessionLocal() as db:
             receipt = db.scalar(select(IdempotencyReceipt).where(
                 IdempotencyReceipt.actor_user_id == actor_user_id,

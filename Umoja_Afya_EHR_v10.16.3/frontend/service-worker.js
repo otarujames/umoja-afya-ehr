@@ -1,86 +1,101 @@
-const CACHE = 'umoja-afya-shell-v10.16.3-brand1';
-const CORE = [
-  '/',
+const RELEASE = '10.16.3-20260802-1';
+const CACHE_NAME = `umoja-${RELEASE}`;
+
+const STATIC_ASSETS = [
   '/styles.css',
-  '/offline.js',
-  '/app.js',
-  '/manifest.json',
-  '/assets/umoja-logo-full.png',
   '/assets/umoja-logo-mark.png',
-  '/assets/icons/favicon.ico',
-  '/assets/icons/apple-touch-icon.png',
-  '/assets/icons/umoja-192.png',
-  '/assets/icons/umoja-512.png',
-  '/assets/icons/umoja-maskable-512.png',
-  '/assets/avatars/neema-k.png',
-  '/assets/avatars/juma-ally-mwangi.png',
-  '/assets/tanzania-coat-of-arms.png',
-  '/assets/kenya-ministry-health.png',
-  '/assets/nigeria-ministry-health.png',
+  '/assets/umoja-logo-full.png'
 ];
 
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE)));
-  self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(STATIC_ASSETS))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key))))
-      .then(() => self.clients.claim()),
+      .then(keys =>
+        Promise.all(
+          keys
+            .filter(key => key.startsWith('umoja-') && key !== CACHE_NAME)
+            .map(key => caches.delete(key))
+        )
+      )
+      .then(() => self.clients.claim())
   );
 });
 
-async function shellResponse(request) {
-  try {
-    const response = await fetch(request, { cache: 'no-store' });
-    if (response.ok) {
-      const cache = await caches.open(CACHE);
-      await cache.put(request, response.clone());
-    }
-    return response;
-  } catch (_) {
-    return (await caches.match(request)) || (await caches.match('/'));
-  }
-}
-
-async function assetResponse(request) {
-  const cached = await caches.match(request);
-  const update = fetch(request, { cache: 'no-store' }).then(async response => {
-    if (response.ok) {
-      const cache = await caches.open(CACHE);
-      await cache.put(request, response.clone());
-    }
-    return response;
-  }).catch(() => null);
-  return cached || (await update) || Response.error();
-}
-
 self.addEventListener('fetch', event => {
   const request = event.request;
-  const url = new URL(request.url);
-  if (request.method !== 'GET' || url.origin !== self.location.origin) return;
 
-  // API data is deliberately never placed in Cache Storage. The application
-  // stores approved responses inside its PIN-protected AES-GCM IndexedDB vault.
-  if (url.pathname.startsWith('/api/')) return;
-  if (request.mode === 'navigate') {
-    event.respondWith(shellResponse(request));
+  if (request.method !== 'GET') {
     return;
   }
-  if (CORE.includes(url.pathname) || url.pathname.startsWith('/assets/')) {
-    event.respondWith(assetResponse(request));
+
+  const url = new URL(request.url);
+
+  if (url.origin !== self.location.origin) {
+    return;
   }
-});
 
-self.addEventListener('sync', event => {
-  if (event.tag !== 'umoja-afya-sync') return;
-  event.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
-    clients.forEach(client => client.postMessage({ type: 'UMOJA_SYNC_REQUEST' }));
-  }));
-});
+  /*
+   * Never serve authentication, APIs, HTML or application JavaScript
+   * from an old cache.
+   */
+  const networkOnly =
+    url.pathname.startsWith('/api/') ||
+    url.pathname === '/' ||
+    url.pathname === '/index.html' ||
+    url.pathname === '/app.js' ||
+    url.pathname === '/offline.js' ||
+    url.pathname === '/service-worker.js' ||
+    request.mode === 'navigate';
 
-self.addEventListener('message', event => {
-  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
+  if (networkOnly) {
+    event.respondWith(
+      fetch(request, { cache: 'no-store' })
+        .catch(() => {
+          if (request.mode === 'navigate') {
+            return new Response(
+              'Umoja Afya is temporarily unavailable. Please reconnect.',
+              {
+                status: 503,
+                headers: {
+                  'Content-Type': 'text/plain; charset=utf-8'
+                }
+              }
+            );
+          }
+
+          throw new Error('Network unavailable');
+        })
+    );
+
+    return;
+  }
+
+  /*
+   * Static visual assets use stale-while-revalidate.
+   */
+  event.respondWith(
+    caches.match(request).then(cached => {
+      const network = fetch(request).then(response => {
+        if (response.ok) {
+          const copy = response.clone();
+
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(request, copy);
+          });
+        }
+
+        return response;
+      });
+
+      return cached || network;
+    })
+  );
 });

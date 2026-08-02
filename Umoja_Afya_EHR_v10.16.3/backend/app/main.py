@@ -52,6 +52,44 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+
+# UMOJA_SERVER_CACHE_POLICY_V10163
+UMOJA_RELEASE = "10.16.3"
+
+@app.middleware("http")
+async def umoja_release_cache_policy(request, call_next):
+    response = await call_next(request)
+
+    path = request.url.path
+    response.headers["X-Umoja-Release"] = UMOJA_RELEASE
+
+    # Application shell and service worker must always be revalidated.
+    if path in {
+        "/",
+        "/index.html",
+        "/app.js",
+        "/offline.js",
+        "/service-worker.js",
+        "/manifest.json",
+    }:
+        response.headers["Cache-Control"] = (
+            "no-store, no-cache, must-revalidate, "
+            "proxy-revalidate, max-age=0"
+        )
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+
+    # Versioned visual assets may be cached for performance.
+    elif path.startswith("/assets/"):
+        response.headers.setdefault(
+            "Cache-Control",
+            "public, max-age=86400, must-revalidate"
+        )
+
+    return response
+
+
+
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.allowed_hosts)
 app.add_middleware(
     CORSMiddleware,

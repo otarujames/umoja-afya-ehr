@@ -222,7 +222,10 @@
       toast(offlineState?.enrolled&&!offlineState?.expired?'Offline access available':'Backend unavailable',offlineState?.enrolled&&!offlineState?.expired?'Unlock the protected device vault to continue with cached records.':'Reconnect to the Umoja Afya server, then retry.');
     }
     renderFacilitySelect();
-    if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('/service-worker.js').then(registration=>registration.update()).catch(()=>{});
+    if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register(
+  '/service-worker.js',
+  { updateViaCache: 'none' }
+).then(registration=>registration.update()).catch(()=>{});
     document.body.classList.toggle('offline',!navigator.onLine);
     window.addEventListener('online',()=>{document.body.classList.remove('offline');updateOfflineUi();queueMicrotask(syncOfflineOutbox);});
     window.addEventListener('offline',()=>{document.body.classList.add('offline');updateOfflineUi();});
@@ -3230,3 +3233,249 @@ document.addEventListener('click',async e=>{
 
   init();
 })();
+
+
+/* Dynamic facility location header — v10.16.3 VPS patch */
+function updateFacilityLocationLabel() {
+  const label = document.getElementById('facilityLocationLabel');
+  if (!label) return;
+
+  const countryNames = {
+    TZ: 'Tanzania',
+    KE: 'Kenya',
+    RW: 'Rwanda',
+    NG: 'Nigeria',
+    PK: 'Pakistan'
+  };
+
+  const facilities =
+    typeof state !== 'undefined' && Array.isArray(state.facilities)
+      ? state.facilities
+      : [];
+
+  const facilitySelect =
+    document.querySelector(
+      '#facilitySelect, #facility, [data-facility-select], select[name="facility"]'
+    );
+
+  const selectedCode =
+    (
+      typeof state !== 'undefined' &&
+      (
+        state.facilityCode ||
+        state.selectedFacilityCode ||
+        state.currentFacilityCode
+      )
+    ) ||
+    facilitySelect?.value ||
+    localStorage.getItem('umojaFacility') ||
+    localStorage.getItem('umojaFacilityCode');
+
+  let facility = facilities.find(item => item.code === selectedCode);
+
+  if (!facility && facilitySelect?.selectedOptions?.length) {
+    const selectedName =
+      facilitySelect.selectedOptions[0].textContent?.trim();
+
+    facility = facilities.find(
+      item => item.name === selectedName
+    );
+  }
+
+  if (!facility && facilities.length === 1) {
+    facility = facilities[0];
+  }
+
+  const countryCode =
+    facility?.country_code ||
+    (
+      typeof state !== 'undefined'
+        ? state.countryCode
+        : null
+    ) ||
+    localStorage.getItem('umojaCountry');
+
+  const country =
+    facility?.country_name ||
+    facility?.country ||
+    countryNames[countryCode] ||
+    '';
+
+  let locality =
+    facility?.city ||
+    facility?.district ||
+    facility?.region ||
+    facility?.province ||
+    '';
+
+  /*
+   * Some facility API records currently expose only name, code and
+   * country_code. These fallbacks prevent the old Tanzania location
+   * from appearing while richer facility metadata is being added.
+   */
+  const facilityName = String(facility?.name || '').toLowerCase();
+
+  if (!locality && countryCode === 'RW') {
+    if (
+      facilityName.includes('butare') ||
+      facilityName.includes('chub')
+    ) {
+      locality = 'Huye';
+    } else if (facilityName.includes('kigali')) {
+      locality = 'Kigali';
+    }
+  }
+
+  if (!locality && countryCode === 'TZ') {
+    if (
+      facilityName.includes('muhimbili') ||
+      facilityName.includes('jakaya kikwete')
+    ) {
+      locality = 'Dar es Salaam';
+    }
+  }
+
+  if (!locality && countryCode === 'KE') {
+    if (facilityName.includes('kenyatta')) {
+      locality = 'Nairobi';
+    }
+  }
+
+  const location = [locality, country]
+    .filter(Boolean)
+    .filter(
+      (value, index, values) =>
+        values.indexOf(value) === index
+    )
+    .join(', ');
+
+  label.textContent =
+    location ||
+    country ||
+    'Facility location unavailable';
+}
+
+document.addEventListener('change', event => {
+  if (
+    event.target.matches(
+      '#facilitySelect, #facility, [data-facility-select], select[name="facility"]'
+    )
+  ) {
+    window.setTimeout(updateFacilityLocationLabel, 0);
+  }
+});
+
+document.addEventListener(
+  'DOMContentLoaded',
+  updateFacilityLocationLabel
+);
+
+window.addEventListener(
+  'storage',
+  updateFacilityLocationLabel
+);
+
+if (typeof renderFacilitySelect === 'function') {
+  const originalRenderFacilitySelect = renderFacilitySelect;
+
+  renderFacilitySelect = function (...args) {
+    const result = originalRenderFacilitySelect.apply(this, args);
+    window.setTimeout(updateFacilityLocationLabel, 0);
+    return result;
+  };
+}
+
+/*
+ * Country/facility state may be restored asynchronously following login.
+ * This observer updates the subtitle whenever the header is rerendered.
+ */
+const facilityLocationObserver = new MutationObserver(() => {
+  updateFacilityLocationLabel();
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+  const label = document.getElementById('facilityLocationLabel');
+
+  if (label?.parentElement) {
+    facilityLocationObserver.observe(label.parentElement, {
+      childList: true,
+      subtree: true
+    });
+  }
+
+  window.setTimeout(updateFacilityLocationLabel, 250);
+  window.setTimeout(updateFacilityLocationLabel, 1000);
+});
+
+
+/* UMOJA_AUTOMATIC_RELEASE_RECOVERY_V10163 */
+async function verifyUmojaClientRelease() {
+  try {
+    const response = await fetch('/api/v1/health/ready', {
+      cache: 'no-store',
+      credentials: 'same-origin'
+    });
+
+    const serverRelease =
+      response.headers.get('X-Umoja-Release') ||
+      (await response.clone().json()).release;
+
+    if (!serverRelease) return;
+
+    const storedRelease =
+      localStorage.getItem('umojaClientRelease');
+
+    if (storedRelease && storedRelease !== serverRelease) {
+      const registrations =
+        await navigator.serviceWorker?.getRegistrations() || [];
+
+      await Promise.all(
+        registrations.map(registration =>
+          registration.unregister()
+        )
+      );
+
+      const cacheNames = await caches.keys();
+
+      await Promise.all(
+        cacheNames
+          .filter(name => name.startsWith('umoja-'))
+          .map(name => caches.delete(name))
+      );
+
+      /*
+       * Preserve authentication only when the API contract remains valid.
+       * Clear nonessential UI state that may be incompatible with the release.
+       */
+      localStorage.removeItem('umojaFacility');
+      localStorage.removeItem('umojaFacilityCode');
+      localStorage.removeItem('umojaRoute');
+      localStorage.removeItem('umojaSelectedPatient');
+      localStorage.setItem(
+        'umojaClientRelease',
+        serverRelease
+      );
+
+      window.location.replace(
+        `/?release=${encodeURIComponent(serverRelease)}`
+      );
+
+      return;
+    }
+
+    localStorage.setItem(
+      'umojaClientRelease',
+      serverRelease
+    );
+  } catch (error) {
+    console.warn(
+      'Release verification unavailable:',
+      error
+    );
+  }
+}
+
+window.addEventListener(
+  'DOMContentLoaded',
+  verifyUmojaClientRelease
+);
