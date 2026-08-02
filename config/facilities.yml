@@ -1,0 +1,21 @@
+facilities:
+  - code: MNH-UPANGA
+    name: Muhimbili National Hospital — Upanga
+    type: national_referral
+    modules: [all_core, transplant, critical_care, complex_surgery, research]
+  - code: MNH-MLOGANZILA
+    name: Muhimbili National Hospital — Mloganzila
+    type: national_referral
+    modules: [all_core, emergency, inpatient, theatre, diagnostics]
+  - code: MOI
+    name: Muhimbili Orthopaedic Institute
+    type: specialty
+    modules: [trauma, orthopaedics, neurosurgery, theatre, rehabilitation]
+  - code: JKCI
+    name: Jakaya Kikwete Cardiac Institute
+    type: specialty
+    modules: [cardiology, cath_lab, cardiac_surgery, critical_care]
+  - code: ORCI
+    name: Ocean Road Cancer Institute
+    type: specialty
+    modules: [oncology, chemotherapy, radiotherapy, infusion]

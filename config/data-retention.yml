@@ -1,0 +1,29 @@
+version: 1
+policy_owner: Ministry of Health and designated data controllers
+record_classes:
+  legal_health_record:
+    retention: configurable_by_tanzanian_law_and_ministry_policy
+    deletion: prohibited_without_authorized_disposition
+  audit_events:
+    retention: minimum_10_years_or_longer_if_required
+    tamper_evident: true
+  integration_payloads:
+    retention: minimum_necessary_for_reconciliation_and_legal_obligations
+  authentication_sessions:
+    retention: short_term_security_log
+  encrypted_offline_cache:
+    retention: maximum_24_hours_without_online_renewal
+    secure_disposal: required_on_device_revocation
+  synchronized_device_outbox_history:
+    retention: 7_days_on_device
+    central_audit_record: retained_per_audit_policy
+  rejected_offline_transactions:
+    retention: until_authorized_reconciliation
+    silent_deletion: prohibited
+  deidentified_analytics:
+    retention: governed_by_approved_secondary_use
+controls:
+  legal_hold: true
+  secure_disposal: true
+  patient_correction_workflow: true
+  disclosure_accounting: true

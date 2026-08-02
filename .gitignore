@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.db
+.env
+.DS_Store
+
+secrets/preloaded_users.json
+secrets/review_preloaded_users.json

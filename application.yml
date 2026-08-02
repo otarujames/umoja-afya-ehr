@@ -1,0 +1,95 @@
+application:
+  name: Umoja Afya Enterprise EHR
+  environment: development
+  api_prefix: /api/v1
+  default_facility: MNH-UPANGA
+  seed_demo_data: true
+  release: 11.0.0
+  demo_patient_count: 10000
+  timezone: Africa/Dar_es_Salaam
+  languages:
+    - sw
+    - en
+
+database:
+  # Local zero-configuration database. Docker Compose overrides this with PostgreSQL.
+  url: sqlite:///./umoja_afya.db
+  pool_size: 10
+  max_overflow: 20
+
+security:
+  audit_enabled: true
+  cors_origins:
+    - "*"
+  session_timeout_minutes: 20
+  rate_limit_per_minute: 240
+  login_rate_limit_per_minute: 10
+  max_request_bytes: 26214400
+  enforce_auth: false
+  enforce_rbac: false
+  demo_credentials_enabled: false
+  offline_access_enabled: true
+  offline_lease_hours: 24
+  offline_max_pending: 1000
+  secret: change-this-before-production
+  require_mfa_for_privileged_roles: true
+  break_glass:
+    enabled: true
+    max_minutes: 30
+    reason_required: true
+  data_residency: Tanzania
+
+interoperability:
+  fhir:
+    version: R4
+    base_path: /fhir/R4
+  hl7v2:
+    enabled: true
+  dicom:
+    enabled: true
+  terminology:
+    diagnosis: [ICD-10, ICD-11, SNOMED-CT]
+    laboratory: [LOINC]
+  national_integrations:
+    - DHIS2
+    - eIDSR
+    - eLMIS/MSD
+    - NHIF/UHI
+    - GePG
+    - HFR
+    - HRHIS
+    - NIDA
+
+clinical_safety:
+  autonomous_diagnosis: false
+  autonomous_prescribing: false
+  rule_validation_required: true
+  alert_override_reason_required_for_high_severity: true
+
+
+enterprise_workflows:
+  registration: [MPI_SEARCH, AUTO_MRN, PRE_REGISTRATION, EMERGENCY, UNKNOWN, NEWBORN, WALK_IN, COVERAGE, CONSENT, PATIENT_EXPIRY]
+  scheduling: [APPOINTMENTS, WAITLISTS, REFERRALS, REMINDERS, RESOURCE_TEMPLATES]
+  patient_flow: [ARRIVAL, TRIAGE, ADT, UNIT_MANAGER, EVS, TRANSPORT, DISCHARGE, EVENT_UNDO]
+  clinical_record: [NOTES, AUDIO_ANNOTATION, PRACTICE_ADVISORIES, ORDER_LOOKUP, ORDER_COURSE, RESULTS, SPREADSHEET_FLOWSHEETS, DEVICE_INGESTION, EMAR, CARE_PLANS]
+  ancillary: [PHARMACY, LIS, BLOOD_BANK, PACS, THEATRE, ANESTHESIA]
+  enterprise: [WORKQUEUES, SECURE_MESSAGES, MANAGED_EVENTS, WALK_INS, DUTY_ROSTERS, SERVICE_POINTS, HFR_CONTEXT_IMPORT, REVENUE_CYCLE, CLAIMS, PAYMENTS, SUPPLY_CHAIN, QUALITY, PUBLIC_HEALTH, ANALYTICS]
+
+release_controls:
+  schema_version: 4
+  database_migrations_required: true
+  audit_all_mutations: true
+  clinical_content_governance_required: true
+  interface_outbox_enabled: true
+  downtime_mode_enabled: true
+
+compliance_readiness:
+  assurance_boundary: alignment_only
+  frameworks:
+    - HIPAA_SECURITY_RULE
+    - SOC_2_TRUST_SERVICES_CRITERIA
+    - ISO_IEC_27001_2022
+    - ISO_IEC_27701_2025
+    - ISO_27799_2025
+    - ISO_22301_2019
+  live_patient_activation_requires_independent_assurance: true

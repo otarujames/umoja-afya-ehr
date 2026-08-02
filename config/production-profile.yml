@@ -1,0 +1,40 @@
+profile: production
+release: 11.0.0
+runtime:
+  environment: production
+  schema_management: alembic_only
+  automatic_schema_create: false
+  demo_data: false
+  demo_credentials: false
+  api_docs_default: false
+  application_user: 10001
+  read_only_root_filesystem: true
+  graceful_shutdown_seconds: 45
+security:
+  authentication_required: true
+  rbac_required: true
+  secrets_source: docker_secrets_or_external_secret_manager
+  tls_required: true
+  trusted_hosts_required: true
+  wildcard_cors_prohibited: true
+  minimum_security_secret_characters: 64
+  gateway_rate_limiting: true
+  offline_device_enrollment: opt_in
+  offline_vault_encryption: AES_256_GCM
+  offline_access_lease_hours: 24
+  offline_reauthentication_before_sync: true
+  offline_idempotency_receipts: true
+database:
+  engine: PostgreSQL
+  version_family: 16
+  password_transport: secret_file
+  connection_url_construction: sqlalchemy_url_create
+  pool_pre_ping: true
+  migration_advisory_lock: true
+  readiness_query: SELECT 1
+operations:
+  liveness_endpoint: /api/v1/health/live
+  readiness_endpoint: /api/v1/health/ready
+  immutable_event_history: true
+  backup_checksum: SHA-256
+  log_rotation: enabled

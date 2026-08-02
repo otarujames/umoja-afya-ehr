@@ -1,0 +1,22 @@
+workflow: WALK_IN_REGISTRATION
+version: 1
+states:
+  - SEARCH_OR_CREATE
+  - ARRIVED
+  - SERVICE_ASSIGNED
+  - WAITING_TRIAGE
+  - TRIAGED
+  - READY_FOR_PROVIDER
+  - COMPLETED
+  - CANCELLED
+steps:
+  - search_or_create_patient
+  - quick_registration_and_identity_review
+  - register_arrival_and_publish_notification
+  - choose_service_point_or_duty_roster
+  - verify_NHIF_private_cash_or_exemption_route
+  - route_to_registration_triage_or_provider_queue
+arrival_notification:
+  event: PATIENT_ARRIVED
+  display_duration_ms: 1000
+  channels: [in_application_event, patient_tracker_refresh, workqueue]

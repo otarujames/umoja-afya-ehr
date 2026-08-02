@@ -1,0 +1,16 @@
+.venv
+__pycache__
+.pytest_cache
+*.pyc
+*.db
+.git
+.github
+.env
+secrets
+backups
+deploy/tls/*.pem
+tests
+docs/runtime-screenshots
+docs/ui-reference
+*.zip
+*.sha256

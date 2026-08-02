@@ -1,0 +1,148 @@
+name: umoja-afya-ehr-review
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: umoja_afya_review
+      POSTGRES_USER: umoja_review
+      POSTGRES_PASSWORD_FILE: /run/secrets/review_postgres_password
+      TZ: Africa/Dar_es_Salaam
+    secrets: [review_postgres_password]
+    volumes:
+      - umoja_review_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U umoja_review -d umoja_afya_review"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
+    networks: [ehr_private]
+    stop_grace_period: 60s
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "5"}
+
+  transcription:
+    build:
+      context: ./services/transcription
+      dockerfile: Dockerfile
+    image: umoja-afya-transcription-review:11.0.0
+    restart: unless-stopped
+    environment:
+      WHISPER_MODEL: ${UMOJA_REVIEW_WHISPER_MODEL:-small}
+      WHISPER_DEVICE: ${UMOJA_WHISPER_DEVICE:-cpu}
+      WHISPER_COMPUTE_TYPE: ${UMOJA_WHISPER_COMPUTE_TYPE:-int8}
+      WHISPER_CPU_THREADS: ${UMOJA_WHISPER_CPU_THREADS:-4}
+      WHISPER_NUM_WORKERS: "1"
+      WHISPER_BEAM_SIZE: "5"
+      WHISPER_BEST_OF: "5"
+      WHISPER_MODEL_CACHE: /models
+      HF_HOME: /models
+      XDG_CACHE_HOME: /models
+      HF_HUB_DISABLE_XET: "1"
+      WHISPER_MAX_AUDIO_BYTES: "52428800"
+      WHISPER_EAGER_LOAD: "false"
+      TZ: Africa/Dar_es_Salaam
+    volumes:
+      - umoja_review_whisper_models:/models
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8090/health/ready"]
+      interval: 20s
+      timeout: 10s
+      retries: 30
+      start_period: 60s
+    networks: [ehr_private]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: ["ALL"]
+    read_only: true
+    tmpfs:
+      - /tmp:size=256m,mode=1777
+    pids_limit: 384
+    stop_grace_period: 60s
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        RELEASE_VERSION: 11.0.0
+    restart: unless-stopped
+    init: true
+    command: ["/app/scripts/start-review.sh"]
+    ports:
+      - "${UMOJA_BIND_ADDRESS:-0.0.0.0}:${UMOJA_HTTP_PORT:-8000}:8000"
+    environment:
+      UMOJA_DB_HOST: db
+      UMOJA_DB_PORT: "5432"
+      UMOJA_DB_NAME: umoja_afya_review
+      UMOJA_DB_USER: umoja_review
+      UMOJA_DB_PASSWORD_FILE: /run/secrets/review_postgres_password
+      UMOJA_DB_SSLMODE: disable
+      UMOJA_TRANSCRIPTION_ENDPOINT: http://transcription:8090/transcribe
+      UMOJA_TRANSCRIPTION_REQUIRED: "false"
+      UMOJA_TRANSCRIPTION_TIMEOUT_SECONDS: "300"
+      UMOJA_MAX_REQUEST_BYTES: "62914560"
+      UMOJA_TRANSCRIPTION_MAX_AUDIO_BYTES: "52428800"
+      UMOJA_TRANSCRIPTION_MIN_CONFIDENCE: "0.50"
+      UMOJA_RETAIN_RAW_CLINICAL_AUDIO: "false"
+      UMOJA_ENVIRONMENT: review
+      UMOJA_SCHEMA_AUTO_CREATE: "false"
+      UMOJA_SEED_DEMO_DATA: "false"
+      UMOJA_ENFORCE_AUTH: "true"
+      UMOJA_ENFORCE_RBAC: "true"
+      UMOJA_DEMO_CREDENTIALS: "false"
+      UMOJA_DEMO_PATIENT_COUNT: "15000"
+      UMOJA_SECURITY_SECRET_FILE: /run/secrets/review_security_secret
+      UMOJA_PRELOADED_USERS_FILE: /run/secrets/review_preloaded_users
+      UMOJA_CORS_ORIGINS: "http://localhost:8000,http://127.0.0.1:8000"
+      UMOJA_ALLOWED_HOSTS: "*"
+      UMOJA_API_DOCS_ENABLED: "true"
+      UMOJA_OFFLINE_ACCESS_ENABLED: "true"
+      UMOJA_OFFLINE_LEASE_HOURS: "24"
+      UMOJA_OFFLINE_MAX_PENDING: "1000"
+      UMOJA_RATE_LIMIT_PER_MINUTE: "600"
+      UMOJA_LOGIN_RATE_LIMIT_PER_MINUTE: "30"
+      WEB_CONCURRENCY: "2"
+      TZ: Africa/Dar_es_Salaam
+    secrets: [review_postgres_password, review_security_secret, review_preloaded_users]
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health/ready', timeout=5)"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 90s
+    networks: [ehr_private, ehr_public]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: ["ALL"]
+    read_only: true
+    tmpfs:
+      - /tmp:size=128m,mode=1777
+    pids_limit: 512
+    stop_grace_period: 60s
+    logging:
+      driver: json-file
+      options: {max-size: "20m", max-file: "5"}
+
+secrets:
+  review_postgres_password:
+    file: ./secrets/review_postgres_password
+  review_security_secret:
+    file: ./secrets/review_security_secret
+  review_preloaded_users:
+    file: ./secrets/review_preloaded_users.json
+
+volumes:
+  umoja_review_pgdata:
+  umoja_review_whisper_models:
+
+networks:
+  ehr_private:
+    internal: true
+  ehr_public:

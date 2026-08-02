@@ -1,0 +1,25 @@
+services:
+  app:
+    networks: [ehr_private, ehr_public, traefik]
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: "${TRAEFIK_NETWORK:-traefik}"
+      traefik.http.services.umoja-afya.loadbalancer.server.port: "8000"
+      traefik.http.routers.umoja-afya.rule: "Host(`${UMOJA_PUBLIC_HOST:?Set UMOJA_PUBLIC_HOST in .env}`)"
+      traefik.http.routers.umoja-afya.entrypoints: "websecure"
+      traefik.http.routers.umoja-afya.service: "umoja-afya"
+      traefik.http.routers.umoja-afya.tls: "true"
+      traefik.http.routers.umoja-afya.tls.certresolver: "${TRAEFIK_CERTRESOLVER:-letsencrypt}"
+      traefik.http.middlewares.umoja-rate-limit.ratelimit.average: "1200"
+      traefik.http.middlewares.umoja-rate-limit.ratelimit.period: "1m"
+      traefik.http.routers.umoja-afya.middlewares: "umoja-rate-limit"
+
+  # The host-port nginx proxy remains available for standalone deployments,
+  # but is intentionally disabled when this Traefik overlay is used.
+  proxy:
+    profiles: [standalone-proxy]
+
+networks:
+  traefik:
+    external: true
+    name: "${TRAEFIK_NETWORK:-traefik}"

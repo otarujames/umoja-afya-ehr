@@ -1,0 +1,22 @@
+UMOJA AFYA EHR 11.0.0 — SECURE QUICK START
+
+1. Linux/macOS: ./scripts/init-review.sh
+   Windows PowerShell: ./scripts/init-review.ps1
+2. Run: docker compose -f docker-compose.review.yml up --build
+3. Open: http://localhost:8000
+4. Retrieve the generated initial accounts from secrets/review_preloaded_users.json.
+5. Sign in with the country-appropriate account; every account must change its initial password and enroll MFA.
+6. Move the credential roster to an approved password vault after onboarding.
+
+Production for umojaehr.online: run ./scripts/init-production.sh, review .env, then run ./scripts/deploy-vps-traefik.sh. The global superuser and role-specific accounts are generated in secrets/preloaded_users.json and synchronized automatically.
+
+BROWSER INSTALL + OFFLINE
+1. Production must use HTTPS.
+2. Open the site in Chrome/Edge/Android or Safari on iPhone/iPad.
+3. Choose Install App or Add to Home Screen.
+4. Sign in online, open the Online/Sync control, and enable protected offline access.
+5. Use a separate 6–12 digit offline PIN on an authorized, encrypted clinical device.
+6. Reopen required patient records while online so approved responses enter the encrypted cache.
+7. Reconnection sync runs when the app is open, unlocked, and authenticated online.
+
+See docs/RELEASE_10_15_OFFLINE_PWA.md for supported offline workflows and safeguards.

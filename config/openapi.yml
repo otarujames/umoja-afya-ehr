@@ -1,0 +1,7337 @@
+openapi: 3.1.0
+info:
+  title: Umoja Afya Enterprise EHR
+  description: Umoja Afya Tanzania enterprise electronic health record. Includes national
+    MPI and patient registration, scheduling/referrals, ADT and unit management, longitudinal
+    documentation, orders/results, flowsheets/eMAR, pharmacy, revenue cycle, supply
+    chain, quality, public health, remote care, FHIR and audit. Patient-facing portal
+    delivery is intentionally deferred from this release.
+  version: 11.0.0
+paths:
+  /api/v1/health/live:
+    get:
+      tags:
+      - System
+      summary: Liveness
+      operationId: liveness_api_v1_health_live_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Liveness Api V1 Health Live Get
+  /api/v1/health/ready:
+    get:
+      tags:
+      - System
+      summary: Readiness
+      operationId: readiness_api_v1_health_ready_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Readiness Api V1 Health Ready Get
+  /api/v1/health:
+    get:
+      tags:
+      - System
+      summary: Health
+      operationId: health_api_v1_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Health Api V1 Health Get
+  /api/v1/auth/login:
+    post:
+      tags:
+      - Authentication and Access
+      summary: Login
+      operationId: login_api_v1_auth_login_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginIn'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/auth/logout:
+    post:
+      tags:
+      - Authentication and Access
+      summary: Logout
+      operationId: logout_api_v1_auth_logout_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/auth/me:
+    get:
+      tags:
+      - Authentication and Access
+      summary: Me
+      operationId: me_api_v1_auth_me_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/facilities:
+    get:
+      tags:
+      - Facilities
+      summary: List Facilities
+      operationId: list_facilities_api_v1_facilities_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/FacilityOut'
+                type: array
+                title: Response List Facilities Api V1 Facilities Get
+  /api/v1/modules:
+    get:
+      tags:
+      - Module Catalogue
+      summary: Modules
+      operationId: modules_api_v1_modules_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  additionalProperties: true
+                  type: object
+                type: array
+                title: Response Modules Api V1 Modules Get
+  /api/v1/flowsheet-templates:
+    get:
+      tags:
+      - Module Catalogue
+      summary: Flowsheet Templates
+      operationId: flowsheet_templates_api_v1_flowsheet_templates_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  additionalProperties: true
+                  type: object
+                type: array
+                title: Response Flowsheet Templates Api V1 Flowsheet Templates Get
+  /api/v1/workflow-statuses:
+    get:
+      tags:
+      - Module Catalogue
+      summary: Workflow Statuses
+      operationId: workflow_statuses_api_v1_workflow_statuses_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Workflow Statuses Api V1 Workflow Statuses Get
+  /api/v1/patients:
+    get:
+      tags:
+      - Patients
+      summary: List Patients
+      operationId: list_patients_api_v1_patients_get
+      parameters:
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            minLength: 1
+          - type: 'null'
+          title: Search
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/patients/{mpi_id}:
+    get:
+      tags:
+      - Patients
+      summary: Get Patient
+      operationId: get_patient_api_v1_patients__mpi_id__get
+      parameters:
+      - name: mpi_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Mpi Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - Patients
+      summary: Update Patient
+      operationId: update_patient_api_v1_patients__mpi_id__patch
+      parameters:
+      - name: mpi_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Mpi Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatientUpdateIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/registration/search:
+    post:
+      tags:
+      - Patient Registration Registration
+      summary: Search Registration
+      operationId: search_registration_api_v1_registration_search_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistrationSearchIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/registration:
+    post:
+      tags:
+      - Patient Registration Registration
+      summary: Register Patient
+      operationId: register_patient_api_v1_registration_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistrationIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/tracker:
+    get:
+      tags:
+      - Patient Flow and ADT
+      summary: Get Tracker
+      operationId: get_tracker_api_v1_tracker_get
+      parameters:
+      - name: facility_code
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Facility Code
+      - name: include_discharged
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Include Discharged
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/encounters/{encounter_id}/status:
+    patch:
+      tags:
+      - Patient Flow and ADT
+      summary: Update Status
+      operationId: update_status_api_v1_encounters__encounter_id__status_patch
+      parameters:
+      - name: encounter_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Encounter Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EncounterStatusUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/encounters/{encounter_id}/discharge:
+    post:
+      tags:
+      - Patient Flow and ADT
+      summary: Discharge
+      operationId: discharge_api_v1_encounters__encounter_id__discharge_post
+      parameters:
+      - name: encounter_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Encounter Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DischargeIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/recent-discharges:
+    get:
+      tags:
+      - Patient Flow and ADT
+      summary: Recent Discharges
+      operationId: recent_discharges_api_v1_recent_discharges_get
+      parameters:
+      - name: facility_code
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Facility Code
+      - name: hours
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 720
+          minimum: 1
+          default: 72
+          title: Hours
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/flowsheets:
+    get:
+      tags:
+      - Clinical Flowsheets
+      summary: List Flowsheets
+      operationId: list_flowsheets_api_v1_flowsheets_get
+      parameters:
+      - name: patient_mpi_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Patient Mpi Id
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/FlowSheetStatus'
+          - type: 'null'
+          title: Status
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Clinical Flowsheets
+      summary: Create Flowsheet
+      operationId: create_flowsheet_api_v1_flowsheets_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlowSheetCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/flowsheets/{flowsheet_id}/actions:
+    post:
+      tags:
+      - Clinical Flowsheets
+      summary: Control Flowsheet
+      operationId: control_flowsheet_api_v1_flowsheets__flowsheet_id__actions_post
+      parameters:
+      - name: flowsheet_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Flowsheet Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlowSheetAction'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/flowsheets/{flowsheet_id}/observations:
+    post:
+      tags:
+      - Clinical Flowsheets
+      summary: Record Observation
+      operationId: record_observation_api_v1_flowsheets__flowsheet_id__observations_post
+      parameters:
+      - name: flowsheet_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Flowsheet Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlowSheetObservationIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/orders:
+    get:
+      tags:
+      - Orders and Results
+      summary: List Orders
+      operationId: list_orders_api_v1_orders_get
+      parameters:
+      - name: patient_mpi_id
+        in: query
+        required: true
+        schema:
+          type: string
+          minLength: 3
+          title: Patient Mpi Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Orders and Results
+      summary: Create Order
+      operationId: create_order_api_v1_orders_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/orders/{order_id}/actions:
+    post:
+      tags:
+      - Orders and Results
+      summary: Change Order Course
+      operationId: change_order_course_api_v1_orders__order_id__actions_post
+      parameters:
+      - name: order_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Order Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderActionIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/results:
+    get:
+      tags:
+      - Orders and Results
+      summary: List Results
+      operationId: list_results_api_v1_results_get
+      parameters:
+      - name: patient_mpi_id
+        in: query
+        required: true
+        schema:
+          type: string
+          minLength: 3
+          title: Patient Mpi Id
+      - name: critical_only
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Critical Only
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/results/{result_id}/acknowledge:
+    post:
+      tags:
+      - Orders and Results
+      summary: Acknowledge Result
+      operationId: acknowledge_result_api_v1_results__result_id__acknowledge_post
+      parameters:
+      - name: result_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Result Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcknowledgeIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/audit:
+    get:
+      tags:
+      - Audit
+      summary: List Audit
+      operationId: list_audit_api_v1_audit_get
+      parameters:
+      - name: patient_mpi_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Patient Mpi Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          default: 100
+          title: Limit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuditOut'
+                title: Response List Audit Api V1 Audit Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/notes/audio-capabilities:
+    get:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Audio Capabilities
+      operationId: audio_capabilities_api_v1_notes_audio_capabilities_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/notes/audio-sessions:
+    get:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Audio Sessions
+      operationId: audio_sessions_api_v1_notes_audio_sessions_get
+      parameters:
+      - name: patient_mpi_id
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Patient Mpi Id
+      - name: encounter_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Encounter Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Limit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/notes/audio-annotations:
+    post:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Create Audio Note
+      operationId: create_audio_note_api_v1_notes_audio_annotations_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AudioNoteIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/notes/audio-transcriptions:
+    post:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Transcribe Audio Note
+      operationId: transcribe_audio_note_api_v1_notes_audio_transcriptions_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_transcribe_audio_note_api_v1_notes_audio_transcriptions_post'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/practice-advisories:
+    get:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Practice Advisories
+      operationId: practice_advisories_api_v1_practice_advisories_get
+      parameters:
+      - name: patient_mpi_id
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Patient Mpi Id
+      - name: encounter_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Encounter Id
+      - name: language
+        in: query
+        required: false
+        schema:
+          enum:
+          - en
+          - sw
+          type: string
+          default: en
+          title: Language
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/practice-advisories/actions:
+    post:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Practice Advisory Action
+      operationId: practice_advisory_action_api_v1_practice_advisories_actions_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdvisoryActionIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/telehealth-sessions:
+    get:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Telehealth Sessions
+      operationId: telehealth_sessions_api_v1_telehealth_sessions_get
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      - name: patient_mpi_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Patient Mpi Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Create Telehealth Session
+      operationId: create_telehealth_session_api_v1_telehealth_sessions_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TelehealthSessionIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/telehealth-sessions/{session_id}/actions:
+    post:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Telehealth Action
+      operationId: telehealth_action_api_v1_telehealth_sessions__session_id__actions_post
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TelehealthActionIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/module-activities:
+    get:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Module Activities
+      operationId: module_activities_api_v1_module_activities_get
+      parameters:
+      - name: module_code
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Module Code
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Create Module Activity
+      operationId: create_module_activity_api_v1_module_activities_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModuleActivityIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/module-activities/{activity_id}:
+    patch:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Update Module Activity
+      operationId: update_module_activity_api_v1_module_activities__activity_id__patch
+      parameters:
+      - name: activity_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Activity Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModuleActivityUpdateIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/enterprise/summary:
+    get:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Enterprise Summary
+      operationId: enterprise_summary_api_v1_enterprise_summary_get
+      parameters:
+      - name: facility_code
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Facility Code
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/analytics/summary:
+    get:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Analytics Summary
+      operationId: analytics_summary_api_v1_analytics_summary_get
+      parameters:
+      - name: facility_code
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Facility Code
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/appointments:
+    get:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Appointments
+      operationId: appointments_api_v1_appointments_get
+      parameters:
+      - name: facility_code
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Facility Code
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      - name: from_hours
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 720
+          minimum: -720
+          default: -12
+          title: From Hours
+      - name: to_hours
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 2160
+          minimum: 1
+          default: 168
+          title: To Hours
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Create Appointment
+      operationId: create_appointment_api_v1_appointments_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppointmentIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/appointments/{appointment_id}:
+    patch:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Update Appointment
+      operationId: update_appointment_api_v1_appointments__appointment_id__patch
+      parameters:
+      - name: appointment_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Appointment Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatusIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/referrals:
+    get:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Referrals
+      operationId: referrals_api_v1_referrals_get
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      - name: facility_code
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Facility Code
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Create Referral
+      operationId: create_referral_api_v1_referrals_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReferralIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/referrals/{referral_id}:
+    patch:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Update Referral
+      operationId: update_referral_api_v1_referrals__referral_id__patch
+      parameters:
+      - name: referral_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Referral Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatusIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/beds:
+    get:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Beds
+      operationId: beds_api_v1_beds_get
+      parameters:
+      - name: facility_code
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Facility Code
+      - name: unit
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Unit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/beds/{bed_id}/actions:
+    post:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Bed Action
+      operationId: bed_action_api_v1_beds__bed_id__actions_post
+      parameters:
+      - name: bed_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Bed Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BedActionIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/notes/templates:
+    get:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Note Templates
+      operationId: note_templates_api_v1_notes_templates_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/notes:
+    get:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Notes
+      operationId: notes_api_v1_notes_get
+      parameters:
+      - name: patient_mpi_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Patient Mpi Id
+      - name: encounter_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Encounter Id
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Create Note
+      operationId: create_note_api_v1_notes_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/notes/{note_id}:
+    patch:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Update Note
+      operationId: update_note_api_v1_notes__note_id__patch
+      parameters:
+      - name: note_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Note Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteUpdateIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/notes/{note_id}/addendum:
+    post:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Add Note Addendum
+      operationId: add_note_addendum_api_v1_notes__note_id__addendum_post
+      parameters:
+      - name: note_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Note Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteAddendumIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/notes/{note_id}/history:
+    get:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Note History
+      operationId: note_history_api_v1_notes__note_id__history_get
+      parameters:
+      - name: note_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Note Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/notes/{note_id}/sign:
+    post:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Sign Note
+      operationId: sign_note_api_v1_notes__note_id__sign_post
+      parameters:
+      - name: note_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Note Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteSignIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/medications:
+    get:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Medications
+      operationId: medications_api_v1_medications_get
+      parameters:
+      - name: patient_mpi_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Patient Mpi Id
+      - name: encounter_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Encounter Id
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Create Medication
+      operationId: create_medication_api_v1_medications_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MedicationIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/medications/{medication_order_id}/verify:
+    post:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Verify Medication
+      operationId: verify_medication_api_v1_medications__medication_order_id__verify_post
+      parameters:
+      - name: medication_order_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Medication Order Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MedicationVerifyIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/medications/{medication_order_id}/administrations:
+    post:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Administer Medication
+      operationId: administer_medication_api_v1_medications__medication_order_id__administrations_post
+      parameters:
+      - name: medication_order_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Medication Order Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdministrationIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/work-items:
+    get:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Work Items
+      operationId: work_items_api_v1_work_items_get
+      parameters:
+      - name: queue
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Queue
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      - name: patient_mpi_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Patient Mpi Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Create Work Item
+      operationId: create_work_item_api_v1_work_items_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkItemIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/work-items/{work_item_id}:
+    patch:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Update Work Item
+      operationId: update_work_item_api_v1_work_items__work_item_id__patch
+      parameters:
+      - name: work_item_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Work Item Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkItemUpdateIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/charges:
+    get:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Charges
+      operationId: charges_api_v1_charges_get
+      parameters:
+      - name: patient_mpi_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Patient Mpi Id
+      - name: encounter_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Encounter Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Create Charge
+      operationId: create_charge_api_v1_charges_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChargeIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/claims:
+    get:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Claims
+      operationId: claims_api_v1_claims_get
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      - name: payer
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Payer
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Create Claim
+      operationId: create_claim_api_v1_claims_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClaimIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/claims/{claim_id}:
+    patch:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Update Claim
+      operationId: update_claim_api_v1_claims__claim_id__patch
+      parameters:
+      - name: claim_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Claim Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClaimStatusIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/payments:
+    post:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Create Payment
+      operationId: create_payment_api_v1_payments_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/inventory:
+    get:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Inventory
+      operationId: inventory_api_v1_inventory_get
+      parameters:
+      - name: facility_code
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Facility Code
+      - name: category
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+      - name: risk_only
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Risk Only
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/inventory/{item_id}/transactions:
+    post:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Inventory Transaction
+      operationId: inventory_transaction_api_v1_inventory__item_id__transactions_post
+      parameters:
+      - name: item_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Item Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryTransactionIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/quality-incidents:
+    get:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Quality Incidents
+      operationId: quality_incidents_api_v1_quality_incidents_get
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Create Quality Incident
+      operationId: create_quality_incident_api_v1_quality_incidents_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QualityIncidentIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/public-health-events:
+    get:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Public Health Events
+      operationId: public_health_events_api_v1_public_health_events_get
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Create Public Health Event
+      operationId: create_public_health_event_api_v1_public_health_events_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublicHealthEventIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/integration-events:
+    get:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Integration Events
+      operationId: integration_events_api_v1_integration_events_get
+      parameters:
+      - name: system
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: System
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          default: 100
+          title: Limit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/access-catalog:
+    get:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Access Catalog
+      operationId: access_catalog_api_v1_admin_access_catalog_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/users:
+    get:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Users
+      operationId: users_api_v1_admin_users_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Create User
+      operationId: create_user_api_v1_admin_users_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreateIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/users/{user_id}:
+    get:
+      tags:
+      - Enterprise EHR Workflows
+      summary: User Detail
+      operationId: user_detail_api_v1_admin_users__user_id__get
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: User Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Update User
+      operationId: update_user_api_v1_admin_users__user_id__patch
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: User Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/users/{user_id}/reset-password:
+    post:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Reset User Password
+      operationId: reset_user_password_api_v1_admin_users__user_id__reset_password_post
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: User Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/admin/users/{user_id}/unlock:
+    post:
+      tags:
+      - Enterprise EHR Workflows
+      summary: Unlock User
+      operationId: unlock_user_api_v1_admin_users__user_id__unlock_post
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: User Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/fhir/R4/Patient/{patient_id}:
+    get:
+      tags:
+      - FHIR R4
+      summary: Fhir Patient
+      operationId: fhir_patient_api_v1_fhir_R4_Patient__patient_id__get
+      parameters:
+      - name: patient_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Patient Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/fhir/R4/Patient:
+    get:
+      tags:
+      - FHIR R4
+      summary: Fhir Patient Search
+      operationId: fhir_patient_search_api_v1_fhir_R4_Patient_get
+      parameters:
+      - name: identifier
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Identifier
+      - name: name
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/fhir/R4/Encounter/{encounter_id}:
+    get:
+      tags:
+      - FHIR R4
+      summary: Fhir Encounter
+      operationId: fhir_encounter_api_v1_fhir_R4_Encounter__encounter_id__get
+      parameters:
+      - name: encounter_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Encounter Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/fhir/R4/Observation:
+    get:
+      tags:
+      - FHIR R4
+      summary: Fhir Observations
+      operationId: fhir_observations_api_v1_fhir_R4_Observation_get
+      parameters:
+      - name: patient
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Patient
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/today-patients:
+    get:
+      tags:
+      - Operational Workflows
+      summary: Today Patients
+      operationId: today_patients_api_v1_today_patients_get
+      parameters:
+      - name: facility_code
+        in: query
+        required: false
+        schema:
+          type: string
+          default: MNH-UPANGA
+          title: Facility Code
+      - name: service
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search
+      - name: day
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Day
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          default: 100
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/service-points:
+    get:
+      tags:
+      - Operational Workflows
+      summary: Service Points
+      operationId: service_points_api_v1_service_points_get
+      parameters:
+      - name: facility_code
+        in: query
+        required: false
+        schema:
+          type: string
+          default: MNH-UPANGA
+          title: Facility Code
+      - name: active_only
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+          title: Active Only
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/duty-rosters:
+    get:
+      tags:
+      - Operational Workflows
+      summary: Duty Rosters
+      operationId: duty_rosters_api_v1_duty_rosters_get
+      parameters:
+      - name: facility_code
+        in: query
+        required: false
+        schema:
+          type: string
+          default: MNH-UPANGA
+          title: Facility Code
+      - name: day
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Day
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/walk-ins:
+    post:
+      tags:
+      - Operational Workflows
+      summary: Create Walk In
+      operationId: create_walk_in_api_v1_walk_ins_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WalkInCreateIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - Operational Workflows
+      summary: Walk Ins
+      operationId: walk_ins_api_v1_walk_ins_get
+      parameters:
+      - name: facility_code
+        in: query
+        required: false
+        schema:
+          type: string
+          default: MNH-UPANGA
+          title: Facility Code
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      - name: hours
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 720
+          minimum: 1
+          default: 24
+          title: Hours
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/walk-ins/{walkin_id}:
+    patch:
+      tags:
+      - Operational Workflows
+      summary: Update Walk In
+      operationId: update_walk_in_api_v1_walk_ins__walkin_id__patch
+      parameters:
+      - name: walkin_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Walkin Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WalkInActionIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/workqueues:
+    get:
+      tags:
+      - Operational Workflows
+      summary: Workqueues
+      operationId: workqueues_api_v1_workqueues_get
+      parameters:
+      - name: category
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+      - name: facility_code
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Facility Code
+      - name: active_only
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+          title: Active Only
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/workqueues/summary:
+    get:
+      tags:
+      - Operational Workflows
+      summary: Workqueue Summary
+      operationId: workqueue_summary_api_v1_workqueues_summary_get
+      parameters:
+      - name: facility_code
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Facility Code
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/workqueues/{queue_id}/items:
+    get:
+      tags:
+      - Operational Workflows
+      summary: Workqueue Items
+      operationId: workqueue_items_api_v1_workqueues__queue_id__items_get
+      parameters:
+      - name: queue_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Queue Id
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 1000
+          minimum: 1
+          default: 200
+          title: Limit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Operational Workflows
+      summary: Create Workqueue Item
+      operationId: create_workqueue_item_api_v1_workqueues__queue_id__items_post
+      parameters:
+      - name: queue_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Queue Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkQueueItemCreateIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/workqueue-items/{item_id}/events:
+    get:
+      tags:
+      - Operational Workflows
+      summary: Workqueue Item Events
+      operationId: workqueue_item_events_api_v1_workqueue_items__item_id__events_get
+      parameters:
+      - name: item_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Item Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/workqueue-items/{item_id}:
+    patch:
+      tags:
+      - Operational Workflows
+      summary: Update Workqueue Item
+      operationId: update_workqueue_item_api_v1_workqueue_items__item_id__patch
+      parameters:
+      - name: item_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Item Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkQueueActionIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/notifications:
+    get:
+      tags:
+      - Operational Workflows
+      summary: Notifications
+      operationId: notifications_api_v1_notifications_get
+      parameters:
+      - name: facility_code
+        in: query
+        required: false
+        schema:
+          type: string
+          default: MNH-UPANGA
+          title: Facility Code
+      - name: since
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Since
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/break-glass:
+    post:
+      tags:
+      - Operational Workflows
+      summary: Break Glass
+      operationId: break_glass_api_v1_break_glass_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BreakGlassIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/print-templates:
+    get:
+      tags:
+      - Operational Workflows
+      summary: Print Templates
+      operationId: print_templates_api_v1_print_templates_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/patients/{mpi_id}/print-jobs:
+    post:
+      tags:
+      - Operational Workflows
+      summary: Create Print Jobs
+      operationId: create_print_jobs_api_v1_patients__mpi_id__print_jobs_post
+      parameters:
+      - name: mpi_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Mpi Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrintJobCreateIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - Operational Workflows
+      summary: List Print Jobs
+      operationId: list_print_jobs_api_v1_patients__mpi_id__print_jobs_get
+      parameters:
+      - name: mpi_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Mpi Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 25
+          title: Limit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/patients/{mpi_id}/benefit-checks:
+    post:
+      tags:
+      - Operational Workflows
+      summary: Create Benefit Check
+      operationId: create_benefit_check_api_v1_patients__mpi_id__benefit_checks_post
+      parameters:
+      - name: mpi_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Mpi Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BenefitCheckIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - Operational Workflows
+      summary: List Benefit Checks
+      operationId: list_benefit_checks_api_v1_patients__mpi_id__benefit_checks_get
+      parameters:
+      - name: mpi_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Mpi Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Limit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/patients/{mpi_id}/travel-screenings:
+    post:
+      tags:
+      - Operational Workflows
+      summary: Create Travel Screening
+      operationId: create_travel_screening_api_v1_patients__mpi_id__travel_screenings_post
+      parameters:
+      - name: mpi_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Mpi Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TravelScreeningIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - Operational Workflows
+      summary: List Travel Screenings
+      operationId: list_travel_screenings_api_v1_patients__mpi_id__travel_screenings_get
+      parameters:
+      - name: mpi_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Mpi Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Limit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/order-catalog:
+    get:
+      tags:
+      - Enterprise Enhancements
+      summary: Order Catalog
+      operationId: order_catalog_api_v1_order_catalog_get
+      parameters:
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search
+      - name: category
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+      - name: department
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Department
+      - name: clinical
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Clinical
+      - name: active_only
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+          title: Active Only
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          default: 100
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/order-catalog/categories:
+    get:
+      tags:
+      - Enterprise Enhancements
+      summary: Order Catalog Categories
+      operationId: order_catalog_categories_api_v1_order_catalog_categories_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/messages/recipients:
+    get:
+      tags:
+      - Enterprise Enhancements
+      summary: Message Recipients
+      operationId: message_recipients_api_v1_messages_recipients_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/messages:
+    get:
+      tags:
+      - Enterprise Enhancements
+      summary: Messages
+      operationId: messages_api_v1_messages_get
+      parameters:
+      - name: folder
+        in: query
+        required: false
+        schema:
+          enum:
+          - INBOX
+          - SENT
+          - ARCHIVED
+          type: string
+          default: INBOX
+          title: Folder
+      - name: unread_only
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Unread Only
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          default: 100
+          title: Limit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Enterprise Enhancements
+      summary: Create Message
+      operationId: create_message_api_v1_messages_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageCreateIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/messages/{message_id}:
+    patch:
+      tags:
+      - Enterprise Enhancements
+      summary: Update Message
+      operationId: update_message_api_v1_messages__message_id__patch
+      parameters:
+      - name: message_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Message Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageActionIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/bed-units:
+    get:
+      tags:
+      - Enterprise Enhancements
+      summary: Bed Units
+      operationId: bed_units_api_v1_bed_units_get
+      parameters:
+      - name: facility_code
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Facility Code
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/unit-manager/overview:
+    get:
+      tags:
+      - Enterprise Enhancements
+      summary: Unit Manager Overview
+      operationId: unit_manager_overview_api_v1_unit_manager_overview_get
+      parameters:
+      - name: facility_code
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Facility Code
+      - name: unit
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Unit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/facilities/context-tree:
+    get:
+      tags:
+      - Enterprise Enhancements
+      summary: Facility Context Tree
+      operationId: facility_context_tree_api_v1_facilities_context_tree_get
+      parameters:
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search
+      - name: region
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Region
+      - name: hierarchy_level
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Hierarchy Level
+      - name: public_only
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+          title: Public Only
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/facilities/import-hfr:
+    post:
+      tags:
+      - Enterprise Enhancements
+      summary: Import Hfr
+      operationId: import_hfr_api_v1_facilities_import_hfr_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FacilityImportIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/patients/{mpi_id}/expire:
+    post:
+      tags:
+      - Enterprise Enhancements
+      summary: Expire Patient
+      operationId: expire_patient_api_v1_patients__mpi_id__expire_post
+      parameters:
+      - name: mpi_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Mpi Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpirePatientIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/event-management:
+    get:
+      tags:
+      - Enterprise Enhancements
+      summary: Event Management
+      operationId: event_management_api_v1_event_management_get
+      parameters:
+      - name: patient_mpi_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Patient Mpi Id
+      - name: entity_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Entity Type
+      - name: reversible_only
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Reversible Only
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 1000
+          minimum: 1
+          default: 200
+          title: Limit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/event-management/{event_id}/undo:
+    post:
+      tags:
+      - Enterprise Enhancements
+      summary: Undo Event
+      operationId: undo_event_api_v1_event_management__event_id__undo_post
+      parameters:
+      - name: event_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Event Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UndoIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/devices:
+    get:
+      tags:
+      - Enterprise Enhancements
+      summary: Devices
+      operationId: devices_api_v1_devices_get
+      parameters:
+      - name: facility_code
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Facility Code
+      - name: unit
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Unit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Enterprise Enhancements
+      summary: Create Device
+      operationId: create_device_api_v1_devices_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceEndpointIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/devices/{device_id}/observations:
+    post:
+      tags:
+      - Enterprise Enhancements
+      summary: Ingest Device Observations
+      operationId: ingest_device_observations_api_v1_devices__device_id__observations_post
+      parameters:
+      - name: device_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Device Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceReadingsIn'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/device-readings:
+    get:
+      tags:
+      - Enterprise Enhancements
+      summary: Device Readings
+      operationId: device_readings_api_v1_device_readings_get
+      parameters:
+      - name: patient_mpi_id
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Patient Mpi Id
+      - name: encounter_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Encounter Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 5000
+          minimum: 1
+          default: 500
+          title: Limit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/flowsheet-template-library:
+    get:
+      tags:
+      - Enterprise Enhancements
+      summary: Flowsheet Templates
+      operationId: flowsheet_templates_api_v1_flowsheet_template_library_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/emergency/board:
+    get:
+      tags:
+      - Enterprise Enhancements
+      summary: Emergency Board
+      operationId: emergency_board_api_v1_emergency_board_get
+      parameters:
+      - name: facility_code
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Facility Code
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/emergency/encounters/{encounter_id}/events:
+    post:
+      tags:
+      - Enterprise Enhancements
+      summary: Emergency Event
+      operationId: emergency_event_api_v1_emergency_encounters__encounter_id__events_post
+      parameters:
+      - name: encounter_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Encounter Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmergencyEventIn'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/specialty-workflows:
+    get:
+      tags:
+      - Enterprise Enhancements
+      summary: Specialty Workflows
+      operationId: specialty_workflows_api_v1_specialty_workflows_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    AcknowledgeIn:
+      properties:
+        actor:
+          type: string
+          title: Actor
+          default: demo-provider
+        action_taken:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Action Taken
+      type: object
+      title: AcknowledgeIn
+    AdministrationIn:
+      properties:
+        action:
+          type: string
+          enum:
+          - GIVEN
+          - HELD
+          - REFUSED
+          - NOT_GIVEN
+          title: Action
+        dose_given:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dose Given
+        administered_by:
+          type: string
+          title: Administered By
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason
+        barcode_verified:
+          type: boolean
+          title: Barcode Verified
+          default: false
+      type: object
+      required:
+      - action
+      - administered_by
+      title: AdministrationIn
+    AdvisoryActionIn:
+      properties:
+        patient_mpi_id:
+          type: string
+          title: Patient Mpi Id
+        encounter_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Encounter Id
+        advisory_key:
+          type: string
+          title: Advisory Key
+        action:
+          type: string
+          enum:
+          - ACKNOWLEDGE
+          - DISMISS
+          - OVERRIDE
+          title: Action
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason
+        actor:
+          type: string
+          maxLength: 160
+          minLength: 2
+          title: Actor
+      type: object
+      required:
+      - patient_mpi_id
+      - advisory_key
+      - action
+      - actor
+      title: AdvisoryActionIn
+    AppointmentIn:
+      properties:
+        patient_mpi_id:
+          type: string
+          title: Patient Mpi Id
+        facility_code:
+          type: string
+          title: Facility Code
+        service:
+          type: string
+          title: Service
+        provider:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider
+        appointment_type:
+          type: string
+          title: Appointment Type
+          default: OFFICE_VISIT
+        scheduled_start:
+          type: string
+          format: date-time
+          title: Scheduled Start
+        duration_minutes:
+          type: integer
+          maximum: 720.0
+          minimum: 5.0
+          title: Duration Minutes
+          default: 30
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        created_by:
+          type: string
+          title: Created By
+          default: scheduler
+      type: object
+      required:
+      - patient_mpi_id
+      - facility_code
+      - service
+      - scheduled_start
+      title: AppointmentIn
+    AudioNoteIn:
+      properties:
+        patient_mpi_id:
+          type: string
+          title: Patient Mpi Id
+        encounter_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Encounter Id
+        language:
+          type: string
+          enum:
+          - en
+          - sw
+          title: Language
+          default: en
+        note_type:
+          type: string
+          title: Note Type
+          default: PROGRESS_NOTE
+        transcript:
+          type: string
+          maxLength: 50000
+          minLength: 3
+          title: Transcript
+        created_by:
+          type: string
+          maxLength: 160
+          minLength: 2
+          title: Created By
+      type: object
+      required:
+      - patient_mpi_id
+      - transcript
+      - created_by
+      title: AudioNoteIn
+    AuditOut:
+      properties:
+        event_id:
+          type: string
+          title: Event Id
+        occurred_at:
+          type: string
+          format: date-time
+          title: Occurred At
+        actor:
+          type: string
+          title: Actor
+        role:
+          type: string
+          title: Role
+        action:
+          type: string
+          title: Action
+        resource_type:
+          type: string
+          title: Resource Type
+        resource_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resource Id
+        patient_mpi_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Patient Mpi Id
+        facility_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Facility Code
+        outcome:
+          type: string
+          title: Outcome
+        details:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Details
+      type: object
+      required:
+      - event_id
+      - occurred_at
+      - actor
+      - role
+      - action
+      - resource_type
+      - outcome
+      title: AuditOut
+    BedActionIn:
+      properties:
+        action:
+          type: string
+          enum:
+          - ASSIGN
+          - OCCUPY
+          - MARK_DIRTY
+          - START_CLEANING
+          - MARK_AVAILABLE
+          - BLOCK
+          - UNBLOCK
+          title: Action
+        encounter_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Encounter Id
+        actor:
+          type: string
+          title: Actor
+          default: operations-user
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason
+      type: object
+      required:
+      - action
+      title: BedActionIn
+    BenefitCheckIn:
+      properties:
+        encounter_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Encounter Id
+        payer:
+          type: string
+          maxLength: 160
+          minLength: 2
+          title: Payer
+        member_number:
+          anyOf:
+          - type: string
+            maxLength: 160
+          - type: 'null'
+          title: Member Number
+        service:
+          anyOf:
+          - type: string
+            maxLength: 160
+          - type: 'null'
+          title: Service
+        requested_by:
+          type: string
+          maxLength: 160
+          minLength: 2
+          title: Requested By
+          default: Front Desk
+      type: object
+      required:
+      - payer
+      title: BenefitCheckIn
+    Body_transcribe_audio_note_api_v1_notes_audio_transcriptions_post:
+      properties:
+        patient_mpi_id:
+          type: string
+          title: Patient Mpi Id
+        encounter_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Encounter Id
+        language:
+          type: string
+          enum:
+          - en
+          - sw
+          title: Language
+          default: en
+        note_type:
+          type: string
+          title: Note Type
+          default: PROGRESS_NOTE
+        created_by:
+          type: string
+          maxLength: 160
+          minLength: 2
+          title: Created By
+        consent_confirmed:
+          type: boolean
+          title: Consent Confirmed
+        file:
+          type: string
+          format: binary
+          title: File
+      type: object
+      required:
+      - patient_mpi_id
+      - created_by
+      - consent_confirmed
+      - file
+      title: Body_transcribe_audio_note_api_v1_notes_audio_transcriptions_post
+    BreakGlassIn:
+      properties:
+        patient_mpi_id:
+          type: string
+          title: Patient Mpi Id
+        encounter_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Encounter Id
+        reason:
+          type: string
+          maxLength: 4000
+          minLength: 10
+          title: Reason
+        emergency_type:
+          type: string
+          title: Emergency Type
+          default: PATIENT_SAFETY
+        duration_minutes:
+          type: integer
+          maximum: 120.0
+          minimum: 5.0
+          title: Duration Minutes
+          default: 30
+      type: object
+      required:
+      - patient_mpi_id
+      - reason
+      title: BreakGlassIn
+    ChargeIn:
+      properties:
+        patient_mpi_id:
+          type: string
+          title: Patient Mpi Id
+        encounter_id:
+          type: string
+          title: Encounter Id
+        service_code:
+          type: string
+          title: Service Code
+        description:
+          type: string
+          title: Description
+        quantity:
+          type: integer
+          minimum: 1.0
+          title: Quantity
+          default: 1
+        unit_price:
+          type: number
+          minimum: 0.0
+          title: Unit Price
+        payer:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Payer
+        posted_by:
+          type: string
+          title: Posted By
+      type: object
+      required:
+      - patient_mpi_id
+      - encounter_id
+      - service_code
+      - description
+      - unit_price
+      - posted_by
+      title: ChargeIn
+    ClaimIn:
+      properties:
+        patient_mpi_id:
+          type: string
+          title: Patient Mpi Id
+        encounter_id:
+          type: string
+          title: Encounter Id
+        payer:
+          type: string
+          title: Payer
+        member_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Member Number
+        amount:
+          type: number
+          minimum: 0.0
+          title: Amount
+        authorization_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization Number
+      type: object
+      required:
+      - patient_mpi_id
+      - encounter_id
+      - payer
+      - amount
+      title: ClaimIn
+    ClaimStatusIn:
+      properties:
+        status:
+          type: string
+          enum:
+          - DRAFT
+          - READY
+          - SUBMITTED
+          - ACCEPTED
+          - DENIED
+          - PAID
+          - VOID
+          title: Status
+        actor:
+          type: string
+          title: Actor
+        denial_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Denial Code
+        denial_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Denial Reason
+      type: object
+      required:
+      - status
+      - actor
+      title: ClaimStatusIn
+    DeviceEndpointIn:
+      properties:
+        facility_code:
+          type: string
+          title: Facility Code
+        unit:
+          type: string
+          title: Unit
+        room:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Room
+        bed_label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Bed Label
+        name:
+          type: string
+          title: Name
+        device_type:
+          type: string
+          title: Device Type
+        manufacturer:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Manufacturer
+        model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model
+        protocol:
+          type: string
+          title: Protocol
+          default: FHIR_OBSERVATION
+      type: object
+      required:
+      - facility_code
+      - unit
+      - name
+      - device_type
+      title: DeviceEndpointIn
+    DeviceReadingsIn:
+      properties:
+        patient_mpi_id:
+          type: string
+          title: Patient Mpi Id
+        encounter_id:
+          type: string
+          title: Encounter Id
+        flowsheet_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Flowsheet Id
+        readings:
+          items:
+            $ref: '#/components/schemas/ReadingIn'
+          type: array
+          maxItems: 500
+          minItems: 1
+          title: Readings
+        actor:
+          type: string
+          title: Actor
+          default: Device Integration Engine
+      type: object
+      required:
+      - patient_mpi_id
+      - encounter_id
+      - readings
+      title: DeviceReadingsIn
+    DischargeIn:
+      properties:
+        disposition:
+          type: string
+          title: Disposition
+        summary:
+          type: string
+          title: Summary
+        follow_up:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Follow Up
+        actor:
+          type: string
+          title: Actor
+          default: demo-provider
+      type: object
+      required:
+      - disposition
+      - summary
+      title: DischargeIn
+    EmergencyEventIn:
+      properties:
+        action:
+          type: string
+          enum:
+          - TRIAGE
+          - TRAUMA_ACTIVATION
+          - MOVE_TO_RESUS
+          - START_CARE
+          - WAITING_RESULTS
+          - READY_FOR_DISPOSITION
+          - ADMIT
+          - TRANSFER
+          - DISCHARGE
+          - LEFT_WITHOUT_BEING_SEEN
+          - UNDO_LAST
+          title: Action
+        actor:
+          type: string
+          title: Actor
+        acuity:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Acuity
+        location:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location
+        provider:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Note
+      type: object
+      required:
+      - action
+      - actor
+      title: EmergencyEventIn
+    EncounterStatus:
+      type: string
+      enum:
+      - PRE_REGISTERED
+      - ARRIVED
+      - WAITING_REGISTRATION
+      - REGISTERED
+      - WAITING_TRIAGE
+      - TRIAGED
+      - READY_FOR_PROVIDER
+      - ROOMED
+      - IN_PROGRESS
+      - WAITING_RESULTS
+      - READY_FOR_DISCHARGE
+      - DISCHARGED
+      - TRANSFERRED
+      - LEFT_WITHOUT_BEING_SEEN
+      title: EncounterStatus
+    EncounterStatusUpdate:
+      properties:
+        status:
+          $ref: '#/components/schemas/EncounterStatus'
+        location:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location
+        room:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Room
+        provider:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider
+        acuity:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Acuity
+        actor:
+          type: string
+          title: Actor
+          default: demo-user
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Note
+      type: object
+      required:
+      - status
+      title: EncounterStatusUpdate
+    ExpirePatientIn:
+      properties:
+        deceased_at:
+          type: string
+          format: date-time
+          title: Deceased At
+        location:
+          type: string
+          title: Location
+        cause:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cause
+        death_certificate_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Death Certificate Number
+        actor:
+          type: string
+          title: Actor
+          default: Clinician
+        disposition:
+          type: string
+          title: Disposition
+          default: Expired
+        notify_mortuary:
+          type: boolean
+          title: Notify Mortuary
+          default: true
+      type: object
+      required:
+      - deceased_at
+      - location
+      title: ExpirePatientIn
+    FacilityImportIn:
+      properties:
+        facilities:
+          items:
+            $ref: '#/components/schemas/FacilityImportItem'
+          type: array
+          maxItems: 20000
+          minItems: 1
+          title: Facilities
+        actor:
+          type: string
+          title: Actor
+          default: ICT Administrator
+        source_system:
+          type: string
+          title: Source System
+          default: Tanzania HFR import
+        grant_to_system_admins:
+          type: boolean
+          title: Grant To System Admins
+          default: true
+      type: object
+      required:
+      - facilities
+      title: FacilityImportIn
+    FacilityImportItem:
+      properties:
+        code:
+          type: string
+          title: Code
+        name:
+          type: string
+          title: Name
+        facility_type:
+          type: string
+          title: Facility Type
+        hfr_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Hfr Code
+        region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Region
+        council:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Council
+        ownership_category:
+          type: string
+          title: Ownership Category
+          default: Public
+        ownership_authority:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ownership Authority
+        hierarchy_level:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Hierarchy Level
+        parent_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Parent Code
+        relation:
+          type: string
+          title: Relation
+          default: Government health system
+      type: object
+      required:
+      - code
+      - name
+      - facility_type
+      title: FacilityImportItem
+    FacilityOut:
+      properties:
+        code:
+          type: string
+          title: Code
+        name:
+          type: string
+          title: Name
+        facility_type:
+          type: string
+          title: Facility Type
+        relation:
+          type: string
+          title: Relation
+        active:
+          type: boolean
+          title: Active
+        hfr_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Hfr Code
+        region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Region
+        council:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Council
+        ownership_category:
+          type: string
+          title: Ownership Category
+          default: Public
+        ownership_authority:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ownership Authority
+        hierarchy_level:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Hierarchy Level
+        parent_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Parent Code
+        source_system:
+          type: string
+          title: Source System
+          default: Umoja Afya
+      type: object
+      required:
+      - code
+      - name
+      - facility_type
+      - relation
+      - active
+      title: FacilityOut
+    FlowSheetAction:
+      properties:
+        action:
+          type: string
+          enum:
+          - START
+          - PAUSE
+          - RESUME
+          - CHANGE
+          - STOP
+          title: Action
+        actor:
+          type: string
+          title: Actor
+          default: demo-user
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Note
+        cadence_minutes:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Cadence Minutes
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        parameters:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Parameters
+      type: object
+      required:
+      - action
+      title: FlowSheetAction
+    FlowSheetCreate:
+      properties:
+        patient_mpi_id:
+          type: string
+          title: Patient Mpi Id
+        encounter_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Encounter Id
+        name:
+          type: string
+          title: Name
+        template_code:
+          type: string
+          title: Template Code
+          default: GENERAL
+        cadence_minutes:
+          type: integer
+          title: Cadence Minutes
+          default: 15
+        parameters:
+          items:
+            type: string
+          type: array
+          title: Parameters
+        owner:
+          type: string
+          title: Owner
+          default: demo-user
+      type: object
+      required:
+      - patient_mpi_id
+      - name
+      title: FlowSheetCreate
+    FlowSheetObservationIn:
+      properties:
+        parameter:
+          type: string
+          title: Parameter
+        value:
+          type: string
+          title: Value
+        unit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Unit
+        source:
+          type: string
+          title: Source
+          default: MANUAL
+        recorded_by:
+          type: string
+          title: Recorded By
+          default: demo-user
+      type: object
+      required:
+      - parameter
+      - value
+      title: FlowSheetObservationIn
+    FlowSheetStatus:
+      type: string
+      enum:
+      - DRAFT
+      - RUNNING
+      - PAUSED
+      - STOPPED
+      title: FlowSheetStatus
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    InventoryTransactionIn:
+      properties:
+        transaction_type:
+          type: string
+          enum:
+          - RECEIPT
+          - ISSUE
+          - ADJUSTMENT_IN
+          - ADJUSTMENT_OUT
+          - TRANSFER_IN
+          - TRANSFER_OUT
+          - WASTE
+          title: Transaction Type
+        quantity:
+          type: integer
+          exclusiveMinimum: 0.0
+          title: Quantity
+        reason:
+          type: string
+          title: Reason
+        reference:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reference
+        actor:
+          type: string
+          title: Actor
+      type: object
+      required:
+      - transaction_type
+      - quantity
+      - reason
+      - actor
+      title: InventoryTransactionIn
+    LoginIn:
+      properties:
+        username:
+          type: string
+          title: Username
+        password:
+          type: string
+          title: Password
+      type: object
+      required:
+      - username
+      - password
+      title: LoginIn
+    MedicationIn:
+      properties:
+        patient_mpi_id:
+          type: string
+          title: Patient Mpi Id
+        encounter_id:
+          type: string
+          title: Encounter Id
+        medication_name:
+          type: string
+          title: Medication Name
+        dose:
+          type: string
+          title: Dose
+        route:
+          type: string
+          title: Route
+        frequency:
+          type: string
+          title: Frequency
+        indication:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Indication
+        ordered_by:
+          type: string
+          title: Ordered By
+      type: object
+      required:
+      - patient_mpi_id
+      - encounter_id
+      - medication_name
+      - dose
+      - route
+      - frequency
+      - ordered_by
+      title: MedicationIn
+    MedicationVerifyIn:
+      properties:
+        pharmacist:
+          type: string
+          title: Pharmacist
+      type: object
+      required:
+      - pharmacist
+      title: MedicationVerifyIn
+    MessageActionIn:
+      properties:
+        action:
+          type: string
+          enum:
+          - READ
+          - UNREAD
+          - ARCHIVE
+          - RESTORE
+          title: Action
+      type: object
+      required:
+      - action
+      title: MessageActionIn
+    MessageCreateIn:
+      properties:
+        recipient_user_id:
+          type: string
+          title: Recipient User Id
+        subject:
+          type: string
+          maxLength: 240
+          minLength: 1
+          title: Subject
+        body:
+          type: string
+          maxLength: 20000
+          minLength: 1
+          title: Body
+        priority:
+          type: string
+          enum:
+          - ROUTINE
+          - HIGH
+          - URGENT
+          title: Priority
+          default: ROUTINE
+        patient_mpi_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Patient Mpi Id
+        encounter_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Encounter Id
+        thread_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Thread Id
+      type: object
+      required:
+      - recipient_user_id
+      - subject
+      - body
+      title: MessageCreateIn
+    ModuleActivityIn:
+      properties:
+        module_code:
+          type: string
+          title: Module Code
+        activity_type:
+          type: string
+          title: Activity Type
+        title:
+          type: string
+          title: Title
+        patient_mpi_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Patient Mpi Id
+        encounter_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Encounter Id
+        priority:
+          type: string
+          title: Priority
+          default: ROUTINE
+        assigned_to:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Assigned To
+        details:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Details
+        payload:
+          additionalProperties: true
+          type: object
+          title: Payload
+        created_by:
+          type: string
+          title: Created By
+          default: demo-user
+      type: object
+      required:
+      - module_code
+      - activity_type
+      - title
+      title: ModuleActivityIn
+    ModuleActivityUpdateIn:
+      properties:
+        status:
+          type: string
+          enum:
+          - NEW
+          - IN_PROGRESS
+          - WAITING
+          - COMPLETED
+          - CANCELLED
+          title: Status
+        actor:
+          type: string
+          title: Actor
+        assigned_to:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Assigned To
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Note
+      type: object
+      required:
+      - status
+      - actor
+      title: ModuleActivityUpdateIn
+    NoteAddendumIn:
+      properties:
+        text:
+          type: string
+          maxLength: 20000
+          minLength: 1
+          title: Text
+        author:
+          type: string
+          maxLength: 160
+          minLength: 1
+          title: Author
+        reason:
+          type: string
+          maxLength: 500
+          minLength: 1
+          title: Reason
+          default: Clarification or additional clinical information
+      type: object
+      required:
+      - text
+      - author
+      title: NoteAddendumIn
+    NoteIn:
+      properties:
+        patient_mpi_id:
+          type: string
+          title: Patient Mpi Id
+        encounter_id:
+          type: string
+          title: Encounter Id
+        note_type:
+          type: string
+          title: Note Type
+        title:
+          type: string
+          title: Title
+        body:
+          type: string
+          title: Body
+        author:
+          type: string
+          title: Author
+        service:
+          type: string
+          title: Service
+        cosign_required:
+          type: boolean
+          title: Cosign Required
+          default: false
+        source_audio_session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Audio Session Id
+      type: object
+      required:
+      - patient_mpi_id
+      - encounter_id
+      - note_type
+      - title
+      - body
+      - author
+      - service
+      title: NoteIn
+    NoteSignIn:
+      properties:
+        signer:
+          type: string
+          title: Signer
+        attestation:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Attestation
+      type: object
+      required:
+      - signer
+      title: NoteSignIn
+    NoteUpdateIn:
+      properties:
+        title:
+          anyOf:
+          - type: string
+            maxLength: 255
+            minLength: 1
+          - type: 'null'
+          title: Title
+        body:
+          anyOf:
+          - type: string
+            maxLength: 100000
+            minLength: 1
+          - type: 'null'
+          title: Body
+        note_type:
+          anyOf:
+          - type: string
+            maxLength: 120
+            minLength: 1
+          - type: 'null'
+          title: Note Type
+        service:
+          anyOf:
+          - type: string
+            maxLength: 160
+            minLength: 1
+          - type: 'null'
+          title: Service
+        cosign_required:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Cosign Required
+        source_audio_session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Audio Session Id
+        actor:
+          type: string
+          title: Actor
+          default: demo-provider
+      type: object
+      title: NoteUpdateIn
+    OrderActionIn:
+      properties:
+        action:
+          type: string
+          enum:
+          - HOLD
+          - RESUME
+          - CANCEL
+          - REINSTATE
+          title: Action
+        actor:
+          type: string
+          maxLength: 160
+          minLength: 2
+          title: Actor
+        reason:
+          type: string
+          maxLength: 1000
+          minLength: 3
+          title: Reason
+      type: object
+      required:
+      - action
+      - actor
+      - reason
+      title: OrderActionIn
+    OrderIn:
+      properties:
+        encounter_id:
+          type: string
+          title: Encounter Id
+        orderable_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Orderable Code
+        order_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Order Type
+        order_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Order Name
+        priority:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Priority
+        indication:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Indication
+        instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instructions
+        ordered_by:
+          type: string
+          title: Ordered By
+          default: demo-provider
+      type: object
+      required:
+      - encounter_id
+      title: OrderIn
+    PasswordResetIn:
+      properties:
+        password:
+          type: string
+          maxLength: 256
+          minLength: 12
+          title: Password
+        actor:
+          type: string
+          title: Actor
+          default: System Administrator
+      type: object
+      required:
+      - password
+      title: PasswordResetIn
+    PatientUpdateIn:
+      properties:
+        first_name:
+          anyOf:
+          - type: string
+            maxLength: 120
+            minLength: 1
+          - type: 'null'
+          title: First Name
+        middle_name:
+          anyOf:
+          - type: string
+            maxLength: 120
+          - type: 'null'
+          title: Middle Name
+        last_name:
+          anyOf:
+          - type: string
+            maxLength: 120
+            minLength: 1
+          - type: 'null'
+          title: Last Name
+        date_of_birth:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Date Of Birth
+        sex:
+          anyOf:
+          - type: string
+            maxLength: 40
+          - type: 'null'
+          title: Sex
+        phone:
+          anyOf:
+          - type: string
+            maxLength: 80
+          - type: 'null'
+          title: Phone
+        nida_number:
+          anyOf:
+          - type: string
+            maxLength: 120
+          - type: 'null'
+          title: Nida Number
+        address:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Address
+        region:
+          anyOf:
+          - type: string
+            maxLength: 120
+          - type: 'null'
+          title: Region
+        district:
+          anyOf:
+          - type: string
+            maxLength: 120
+          - type: 'null'
+          title: District
+        next_of_kin:
+          anyOf:
+          - type: string
+            maxLength: 300
+          - type: 'null'
+          title: Next Of Kin
+        payer:
+          anyOf:
+          - type: string
+            maxLength: 120
+          - type: 'null'
+          title: Payer
+        member_number:
+          anyOf:
+          - type: string
+            maxLength: 180
+          - type: 'null'
+          title: Member Number
+        consent_status:
+          anyOf:
+          - type: string
+            maxLength: 80
+          - type: 'null'
+          title: Consent Status
+        actor:
+          type: string
+          maxLength: 180
+          minLength: 2
+          title: Actor
+          default: Registration User
+      type: object
+      title: PatientUpdateIn
+    PaymentIn:
+      properties:
+        patient_mpi_id:
+          type: string
+          title: Patient Mpi Id
+        encounter_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Encounter Id
+        amount:
+          type: number
+          exclusiveMinimum: 0.0
+          title: Amount
+        method:
+          type: string
+          title: Method
+        reference:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reference
+        received_by:
+          type: string
+          title: Received By
+      type: object
+      required:
+      - patient_mpi_id
+      - amount
+      - method
+      - received_by
+      title: PaymentIn
+    PrintJobCreateIn:
+      properties:
+        template_codes:
+          items:
+            type: string
+          type: array
+          maxItems: 12
+          minItems: 1
+          title: Template Codes
+        encounter_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Encounter Id
+        copies:
+          type: integer
+          maximum: 20.0
+          minimum: 1.0
+          title: Copies
+          default: 1
+        language:
+          type: string
+          enum:
+          - en
+          - sw
+          title: Language
+          default: en
+        printer_name:
+          anyOf:
+          - type: string
+            maxLength: 160
+          - type: 'null'
+          title: Printer Name
+          default: Browser / PDF
+        requested_by:
+          type: string
+          maxLength: 160
+          minLength: 2
+          title: Requested By
+          default: Front Desk
+      type: object
+      required:
+      - template_codes
+      title: PrintJobCreateIn
+    PublicHealthEventIn:
+      properties:
+        patient_mpi_id:
+          type: string
+          title: Patient Mpi Id
+        condition_code:
+          type: string
+          title: Condition Code
+        condition_name:
+          type: string
+          title: Condition Name
+        event_type:
+          type: string
+          title: Event Type
+          default: NOTIFIABLE_CONDITION
+        reported_to:
+          type: string
+          title: Reported To
+          default: eIDSR
+      type: object
+      required:
+      - patient_mpi_id
+      - condition_code
+      - condition_name
+      title: PublicHealthEventIn
+    QualityIncidentIn:
+      properties:
+        facility_code:
+          type: string
+          title: Facility Code
+        patient_mpi_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Patient Mpi Id
+        category:
+          type: string
+          title: Category
+        severity:
+          type: string
+          title: Severity
+        description:
+          type: string
+          title: Description
+        reported_by:
+          type: string
+          title: Reported By
+        owner:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owner
+      type: object
+      required:
+      - facility_code
+      - category
+      - severity
+      - description
+      - reported_by
+      title: QualityIncidentIn
+    ReadingIn:
+      properties:
+        parameter_code:
+          type: string
+          title: Parameter Code
+        parameter_name:
+          type: string
+          title: Parameter Name
+        numeric_value:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Numeric Value
+        text_value:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Text Value
+        unit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Unit
+        quality:
+          type: string
+          title: Quality
+          default: VALID
+        recorded_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Recorded At
+        source_message_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Message Id
+      type: object
+      required:
+      - parameter_code
+      - parameter_name
+      title: ReadingIn
+    ReferralIn:
+      properties:
+        patient_mpi_id:
+          type: string
+          title: Patient Mpi Id
+        source_facility_code:
+          type: string
+          title: Source Facility Code
+        destination_facility_code:
+          type: string
+          title: Destination Facility Code
+        service:
+          type: string
+          title: Service
+        priority:
+          type: string
+          title: Priority
+          default: ROUTINE
+        reason:
+          type: string
+          title: Reason
+        requested_by:
+          type: string
+          title: Requested By
+          default: demo-provider
+      type: object
+      required:
+      - patient_mpi_id
+      - source_facility_code
+      - destination_facility_code
+      - service
+      - reason
+      title: ReferralIn
+    RegistrationIn:
+      properties:
+        first_name:
+          type: string
+          title: First Name
+        middle_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Middle Name
+        last_name:
+          type: string
+          title: Last Name
+        date_of_birth:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Date Of Birth
+        sex:
+          type: string
+          title: Sex
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        nida_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Nida Number
+        address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Address
+        region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Region
+        district:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: District
+        next_of_kin:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Next Of Kin
+        payer:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Payer
+        member_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Member Number
+        facility_code:
+          type: string
+          title: Facility Code
+        encounter_type:
+          type: string
+          title: Encounter Type
+          default: OUTPATIENT
+        service:
+          type: string
+          title: Service
+          default: General Medicine
+        reason_for_visit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason For Visit
+        registration_mode:
+          type: string
+          enum:
+          - STANDARD
+          - EMERGENCY
+          - UNKNOWN
+          - NEWBORN
+          - PRE_REGISTRATION
+          title: Registration Mode
+          default: STANDARD
+        consent_status:
+          type: string
+          title: Consent Status
+          default: OBTAINED
+        proxy_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Proxy Name
+        proxy_relationship:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Proxy Relationship
+        force_create:
+          type: boolean
+          title: Force Create
+          default: false
+      type: object
+      required:
+      - first_name
+      - last_name
+      - sex
+      - facility_code
+      title: RegistrationIn
+    RegistrationSearchIn:
+      properties:
+        first_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Name
+        date_of_birth:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Date Of Birth
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        nida_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Nida Number
+        mrn:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mrn
+      type: object
+      title: RegistrationSearchIn
+    StatusIn:
+      properties:
+        status:
+          type: string
+          title: Status
+        actor:
+          type: string
+          title: Actor
+          default: demo-user
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Note
+      type: object
+      required:
+      - status
+      title: StatusIn
+    TelehealthActionIn:
+      properties:
+        action:
+          type: string
+          enum:
+          - START
+          - PAUSE
+          - RESUME
+          - COMPLETE
+          - CANCEL
+          title: Action
+        actor:
+          type: string
+          title: Actor
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Note
+      type: object
+      required:
+      - action
+      - actor
+      title: TelehealthActionIn
+    TelehealthSessionIn:
+      properties:
+        patient_mpi_id:
+          type: string
+          title: Patient Mpi Id
+        facility_code:
+          type: string
+          title: Facility Code
+        service:
+          type: string
+          title: Service
+        provider:
+          type: string
+          title: Provider
+        modality:
+          type: string
+          enum:
+          - VIDEO
+          - AUDIO
+          - STORE_AND_FORWARD
+          title: Modality
+          default: VIDEO
+        scheduled_start:
+          type: string
+          format: date-time
+          title: Scheduled Start
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason
+        created_by:
+          type: string
+          title: Created By
+      type: object
+      required:
+      - patient_mpi_id
+      - facility_code
+      - service
+      - provider
+      - scheduled_start
+      - created_by
+      title: TelehealthSessionIn
+    TravelScreeningIn:
+      properties:
+        encounter_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Encounter Id
+        responses:
+          additionalProperties:
+            anyOf:
+            - type: boolean
+            - type: string
+            - type: integer
+            - type: number
+            - type: 'null'
+          type: object
+          title: Responses
+        completed_by:
+          type: string
+          maxLength: 160
+          minLength: 2
+          title: Completed By
+          default: Front Desk
+      type: object
+      required:
+      - responses
+      title: TravelScreeningIn
+    UndoIn:
+      properties:
+        actor:
+          type: string
+          title: Actor
+          default: ICT Administrator
+        reason:
+          type: string
+          maxLength: 4000
+          minLength: 3
+          title: Reason
+      type: object
+      required:
+      - reason
+      title: UndoIn
+    UserCreateIn:
+      properties:
+        username:
+          type: string
+          maxLength: 120
+          minLength: 3
+          pattern: ^[A-Za-z0-9._-]+$
+          title: Username
+        display_name:
+          type: string
+          maxLength: 180
+          minLength: 2
+          title: Display Name
+        role_code:
+          type: string
+          maxLength: 80
+          minLength: 2
+          title: Role Code
+          default: custom
+        facility_code:
+          type: string
+          title: Facility Code
+          default: MNH-UPANGA
+        password:
+          type: string
+          maxLength: 256
+          minLength: 12
+          title: Password
+        requires_mfa:
+          type: boolean
+          title: Requires Mfa
+          default: true
+        function_codes:
+          items:
+            type: string
+          type: array
+          title: Function Codes
+        department_codes:
+          items:
+            type: string
+          type: array
+          title: Department Codes
+        facility_codes:
+          items:
+            type: string
+          type: array
+          title: Facility Codes
+        access_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Access Reason
+        actor:
+          type: string
+          title: Actor
+          default: System Administrator
+      type: object
+      required:
+      - username
+      - display_name
+      - password
+      title: UserCreateIn
+    UserUpdateIn:
+      properties:
+        display_name:
+          anyOf:
+          - type: string
+            maxLength: 180
+            minLength: 2
+          - type: 'null'
+          title: Display Name
+        role_code:
+          anyOf:
+          - type: string
+            maxLength: 80
+            minLength: 2
+          - type: 'null'
+          title: Role Code
+        facility_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Facility Code
+        active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Active
+        requires_mfa:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Requires Mfa
+        function_codes:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Function Codes
+        department_codes:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Department Codes
+        facility_codes:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Facility Codes
+        access_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Access Reason
+        actor:
+          type: string
+          title: Actor
+          default: System Administrator
+      type: object
+      title: UserUpdateIn
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    WalkInActionIn:
+      properties:
+        action:
+          type: string
+          enum:
+          - ARRIVE
+          - ASSIGN_SERVICE
+          - SEND_TO_TRIAGE
+          - TRIAGE_COMPLETE
+          - READY_FOR_PROVIDER
+          - COMPLETE
+          - CANCEL
+          title: Action
+        actor:
+          type: string
+          title: Actor
+        service_point_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Point Id
+        queue_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Queue Name
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Note
+      type: object
+      required:
+      - action
+      - actor
+      title: WalkInActionIn
+    WalkInCreateIn:
+      properties:
+        patient_mpi_id:
+          type: string
+          title: Patient Mpi Id
+        facility_code:
+          type: string
+          title: Facility Code
+          default: MNH-UPANGA
+        service_point_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Point Id
+        reason:
+          type: string
+          maxLength: 2000
+          minLength: 2
+          title: Reason
+        notes:
+          anyOf:
+          - type: string
+            maxLength: 4000
+          - type: 'null'
+          title: Notes
+        coverage_route:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Coverage Route
+        created_by:
+          type: string
+          title: Created By
+          default: Front Desk
+      type: object
+      required:
+      - patient_mpi_id
+      - reason
+      title: WalkInCreateIn
+    WorkItemIn:
+      properties:
+        queue:
+          type: string
+          title: Queue
+        task_type:
+          type: string
+          title: Task Type
+        subject:
+          type: string
+          title: Subject
+        details:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Details
+        patient_mpi_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Patient Mpi Id
+        encounter_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Encounter Id
+        priority:
+          type: string
+          title: Priority
+          default: ROUTINE
+        assigned_to:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Assigned To
+        due_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Due At
+        created_by:
+          type: string
+          title: Created By
+          default: system
+      type: object
+      required:
+      - queue
+      - task_type
+      - subject
+      title: WorkItemIn
+    WorkItemUpdateIn:
+      properties:
+        status:
+          type: string
+          enum:
+          - OPEN
+          - IN_PROGRESS
+          - COMPLETED
+          - CANCELLED
+          title: Status
+        actor:
+          type: string
+          title: Actor
+        assigned_to:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Assigned To
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Note
+      type: object
+      required:
+      - status
+      - actor
+      title: WorkItemUpdateIn
+    WorkQueueActionIn:
+      properties:
+        action:
+          type: string
+          enum:
+          - ASSIGN
+          - ROUTE
+          - DEFER
+          - RESUME
+          - COMPLETE
+          - REOPEN
+          - CANCEL
+          title: Action
+        actor:
+          type: string
+          title: Actor
+        assigned_to:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Assigned To
+        target_queue_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Target Queue Code
+        defer_hours:
+          anyOf:
+          - type: integer
+            maximum: 8760.0
+            minimum: 1.0
+          - type: 'null'
+          title: Defer Hours
+        note:
+          anyOf:
+          - type: string
+            maxLength: 4000
+          - type: 'null'
+          title: Note
+      type: object
+      required:
+      - action
+      - actor
+      title: WorkQueueActionIn
+    WorkQueueItemCreateIn:
+      properties:
+        patient_mpi_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Patient Mpi Id
+        encounter_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Encounter Id
+        appointment_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Appointment Id
+        title:
+          type: string
+          maxLength: 240
+          minLength: 2
+          title: Title
+        reason:
+          type: string
+          maxLength: 4000
+          minLength: 2
+          title: Reason
+        priority:
+          type: string
+          title: Priority
+          default: ROUTINE
+        assigned_to:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Assigned To
+        due_hours:
+          type: integer
+          maximum: 8760.0
+          minimum: 1.0
+          title: Due Hours
+          default: 24
+        created_by:
+          type: string
+          title: Created By
+      type: object
+      required:
+      - title
+      - reason
+      - created_by
+      title: WorkQueueItemCreateIn

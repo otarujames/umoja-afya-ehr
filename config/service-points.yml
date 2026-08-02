@@ -1,0 +1,9 @@
+version: 1
+scheduling_models:
+  PUBLIC_DUTY_ROSTER:
+    provider_required: false
+    routing_basis: service_point_and_on_duty_team
+  PRIVATE_NAMED_PROVIDER:
+    provider_required: true
+    routing_basis: named_provider_calendar
+service_point_fields: [facility, department, clinic, room, queue_capacity, scheduling_model, active]

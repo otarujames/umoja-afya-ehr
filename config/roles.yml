@@ -1,0 +1,25 @@
+roles:
+  - code: patient_access
+    name: Patient Access / Patient Registration
+    permissions: [mpi_search, register, update_demographics, consent, coverage, arrival, pre_registration]
+  - code: physician
+    name: Physician
+    permissions: [chart, document, order, reconcile_medications, discharge, refer, acknowledge_results]
+  - code: nurse
+    name: Nurse
+    permissions: [tracker, triage, room, flowsheets, care_plan, emar, handoff, discharge_readiness]
+  - code: pharmacist
+    name: Pharmacist
+    permissions: [verify_medications, dispense, formulary, inventory, stewardship]
+  - code: laboratory
+    name: Laboratory
+    permissions: [collect, receive, process, validate, release, critical_result]
+  - code: radiology
+    name: Radiology
+    permissions: [protocol, schedule, perform, report, critical_finding]
+  - code: operations
+    name: Hospital Operations
+    permissions: [adt, bed_board, transport, evs, capacity, command_center]
+  - code: administrator
+    name: System Administrator
+    permissions: [users, roles, facilities, terminology, interfaces, audit, release_management]

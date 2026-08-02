@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: umoja-afya
+spec:
+  selector:
+    app: umoja-afya
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8000
