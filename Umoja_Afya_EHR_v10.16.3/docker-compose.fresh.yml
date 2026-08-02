@@ -1,0 +1,89 @@
+name: umoja-afya-v10-163
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: umoja-v1063-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: umoja_afya
+      POSTGRES_USER: umoja
+      POSTGRES_PASSWORD: umoja_secure_pass_2024
+      TZ: Africa/Dar_es_Salaam
+    volumes:
+      - umoja_v1063_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U umoja -d umoja_afya"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    networks: [umoja_v1063_net]
+    stop_grace_period: 90s
+    logging:
+      driver: json-file
+      options: {max-size: "20m", max-file: "10"}
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        RELEASE_VERSION: 10.16.3
+    image: umoja-afya-ehr:10.16.3
+    container_name: umoja-v1063-app
+    restart: unless-stopped
+    init: true
+    ports:
+      - "5000:8000"
+    command: ["sh", "-c", "python scripts/prestart.py --mode review || true && uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --workers 2"]
+    environment:
+      UMOJA_DB_HOST: umoja-v1063-db
+      UMOJA_DB_PORT: "5432"
+      UMOJA_DB_NAME: umoja_afya
+      UMOJA_DB_USER: umoja
+      UMOJA_DB_PASSWORD: umoja_secure_pass_2024
+      UMOJA_DB_SSLMODE: disable
+      UMOJA_TRANSCRIPTION_REQUIRED: "false"
+      UMOJA_TRANSCRIPTION_MIN_CONFIDENCE: 0.55
+      UMOJA_RETAIN_RAW_CLINICAL_AUDIO: "false"
+      UMOJA_ENVIRONMENT: review
+      UMOJA_SCHEMA_AUTO_CREATE: "true"
+      UMOJA_SEED_DEMO_DATA: "false"
+      UMOJA_ENFORCE_AUTH: "true"
+      UMOJA_ENFORCE_RBAC: "true"
+      UMOJA_DEMO_CREDENTIALS: "false"
+      UMOJA_API_DOCS_ENABLED: "true"
+      UMOJA_CORS_ORIGINS: "http://localhost:5000,http://127.0.0.1:5000"
+      UMOJA_ALLOWED_HOSTS: "localhost,127.0.0.1,umoja-v1063-app"
+      UMOJA_SECURITY_SECRET: "v1063-secret-key-change-before-production-2024"
+      UMOJA_BOOTSTRAP_TOKEN: "v1063-bootstrap-token-temporary-at-least-32-chars-long!"
+      UMOJA_FIRST_RUN_SETUP: "true"
+      UMOJA_DB_POOL_SIZE: "15"
+      UMOJA_DB_MAX_OVERFLOW: "30"
+      UMOJA_RATE_LIMIT_PER_MINUTE: "1200"
+      UMOJA_LOGIN_RATE_LIMIT_PER_MINUTE: "20"
+      UMOJA_OFFLINE_ACCESS_ENABLED: "true"
+      UMOJA_OFFLINE_LEASE_HOURS: "24"
+      UMOJA_OFFLINE_MAX_PENDING: "1000"
+      WEB_CONCURRENCY: "2"
+      TZ: Africa/Dar_es_Salaam
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health/ready', timeout=5)"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 150s
+    networks: [umoja_v1063_net]
+    logging:
+      driver: json-file
+      options: {max-size: "50m", max-file: "10"}
+
+volumes:
+  umoja_v1063_pgdata:
+
+networks:
+  umoja_v1063_net:
+    driver: bridge

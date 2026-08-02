@@ -1,0 +1,380 @@
+version: 10.16.3
+source: Umoja Afya national inpatient starter content
+machine_ingestion:
+  supported_protocols: [FHIR R4 Observation, HL7 v2 ORU, IEEE 11073 gateway, REST JSON]
+  validation: Patient, encounter, device, timestamp, units, quality flag and duplicate message ID are required or validated.
+templates:
+  - code: TRIAGE_AMBULATORY
+    name: Triage and Ambulatory Assessment
+    cadence_minutes: 15
+    departments: [Triage, Emergency, Outpatient, Primary Care]
+    parameters: [Chief complaint, Acuity, Heart rate, Blood pressure, Temperature, Respiratory rate, SpO2, Pain score]
+    groups:
+      - name: Arrival and Triage
+        rows:
+          - {code: CHIEF_COMPLAINT, label: Chief complaint, type: text}
+          - {code: ONSET, label: Symptom onset, type: text}
+          - {code: ACUITY, label: Triage acuity, type: choice, choices: [Immediate, Emergent, Urgent, Less urgent, Non-urgent]}
+          - {code: MODE_ARRIVAL, label: Mode of arrival, type: choice, choices: [Walk-in, Ambulance, Referral, Transfer, Police, Other]}
+          - {code: INFECTION_SCREEN, label: Infection risk screen, type: choice, choices: [Negative, Positive, Not completed]}
+          - {code: FALL_RISK_SCREEN, label: Fall risk screen, type: choice, choices: [Low, Moderate, High]}
+      - name: Triage Vitals and Early Warning
+        rows:
+          - {code: HR, label: Heart rate, unit: bpm, type: number, device_capable: true}
+          - {code: SBP, label: Systolic blood pressure, unit: mmHg, type: number, device_capable: true}
+          - {code: DBP, label: Diastolic blood pressure, unit: mmHg, type: number, device_capable: true}
+          - {code: TEMP, label: Temperature, unit: °C, type: number, device_capable: true}
+          - {code: RR, label: Respiratory rate, unit: breaths/min, type: number, device_capable: true}
+          - {code: SPO2, label: Oxygen saturation, unit: '%', type: number, device_capable: true}
+          - {code: PAIN, label: Pain score, unit: /10, type: number}
+          - {code: AVPU, label: AVPU, type: choice, choices: [Alert, Voice, Pain, Unresponsive]}
+          - {code: EWS, label: Early warning score, type: calculated}
+      - name: Ambulatory Measurements and Safety
+        rows:
+          - {code: WEIGHT, label: Weight, unit: kg, type: number, device_capable: true}
+          - {code: HEIGHT, label: Height, unit: cm, type: number, device_capable: true}
+          - {code: BMI, label: Body mass index, unit: kg/m², type: calculated}
+          - {code: GLUCOSE, label: Point-of-care glucose, unit: mmol/L, type: number, device_capable: true}
+          - {code: ALLERGY_REVIEW, label: Allergy review completed, type: boolean}
+          - {code: MED_RECON, label: Medication reconciliation started, type: boolean}
+          - {code: PREGNANCY_STATUS, label: Pregnancy status, type: choice, choices: [Not applicable, Unknown, Negative, Positive]}
+          - {code: TRIAGE_NOTE, label: Triage narrative, type: text}
+  - code: ADULT_INPATIENT
+    name: Adult Inpatient Comprehensive Flowsheet
+    cadence_minutes: 60
+    departments: [Medicine, Surgery, Orthopaedics, Cardiology, Oncology]
+    parameters: [Heart rate, Blood pressure, Temperature, Respiratory rate, SpO2, Pain score]
+    groups:
+      - name: Vital Signs and Early Warning
+        rows:
+          - {code: HR, label: Heart rate, unit: bpm, type: number, device_capable: true}
+          - {code: SBP, label: Systolic blood pressure, unit: mmHg, type: number, device_capable: true}
+          - {code: DBP, label: Diastolic blood pressure, unit: mmHg, type: number, device_capable: true}
+          - {code: MAP, label: Mean arterial pressure, unit: mmHg, type: number, device_capable: true}
+          - {code: TEMP, label: Temperature, unit: °C, type: number, device_capable: true}
+          - {code: RR, label: Respiratory rate, unit: breaths/min, type: number, device_capable: true}
+          - {code: SPO2, label: Oxygen saturation, unit: '%', type: number, device_capable: true}
+          - {code: O2_DEVICE, label: Oxygen delivery device, type: choice, choices: [Room air, Nasal cannula, Mask, Non-rebreather, High-flow, CPAP, BiPAP, Ventilator]}
+          - {code: O2_FLOW, label: Oxygen flow, unit: L/min, type: number, device_capable: true}
+          - {code: PAIN, label: Pain score, unit: /10, type: number}
+          - {code: AVPU, label: AVPU, type: choice, choices: [Alert, Voice, Pain, Unresponsive]}
+          - {code: EWS, label: Early warning score, type: calculated}
+      - name: Neurological
+        rows:
+          - {code: GCS_E, label: GCS eye, unit: /4, type: number}
+          - {code: GCS_V, label: GCS verbal, unit: /5, type: number}
+          - {code: GCS_M, label: GCS motor, unit: /6, type: number}
+          - {code: GCS_TOTAL, label: GCS total, unit: /15, type: calculated}
+          - {code: PUPIL_R_SIZE, label: Right pupil size, unit: mm, type: number}
+          - {code: PUPIL_R_REACT, label: Right pupil reaction, type: choice, choices: [Brisk, Sluggish, Fixed, Unable]}
+          - {code: PUPIL_L_SIZE, label: Left pupil size, unit: mm, type: number}
+          - {code: PUPIL_L_REACT, label: Left pupil reaction, type: choice, choices: [Brisk, Sluggish, Fixed, Unable]}
+          - {code: ORIENTATION, label: Orientation, type: multiselect, choices: [Person, Place, Time, Situation]}
+          - {code: SEIZURE, label: Seizure activity, type: choice, choices: [None, Suspected, Observed]}
+      - name: Respiratory
+        rows:
+          - {code: RESP_PATTERN, label: Respiratory pattern, type: choice, choices: [Regular, Shallow, Laboured, Apnoeic]}
+          - {code: BREATH_SOUNDS_R, label: Right breath sounds, type: choice, choices: [Clear, Diminished, Crackles, Wheeze, Absent]}
+          - {code: BREATH_SOUNDS_L, label: Left breath sounds, type: choice, choices: [Clear, Diminished, Crackles, Wheeze, Absent]}
+          - {code: COUGH, label: Cough, type: choice, choices: [None, Dry, Productive, Weak]}
+          - {code: SPUTUM, label: Sputum description, type: text}
+          - {code: SUCTION, label: Suction performed, type: boolean}
+          - {code: CHEST_DRAIN, label: Chest drain output, unit: mL, type: number}
+      - name: Cardiovascular and Peripheral Perfusion
+        rows:
+          - {code: RHYTHM, label: Cardiac rhythm, type: choice, choices: [Sinus, AF, Flutter, SVT, VT, VF, Paced, Other], device_capable: true}
+          - {code: PULSE_QUALITY, label: Pulse quality, type: choice, choices: [Bounding, Normal, Weak, Absent]}
+          - {code: CAP_REFILL, label: Capillary refill, unit: seconds, type: number}
+          - {code: EDEMA, label: Oedema, type: choice, choices: [None, Trace, 1+, 2+, 3+, 4+]}
+          - {code: JVP, label: JVP, type: choice, choices: [Normal, Elevated, Not assessed]}
+          - {code: PERFUSION, label: Peripheral perfusion, type: choice, choices: [Warm, Cool, Mottled, Cyanosed]}
+      - name: Gastrointestinal and Nutrition
+        rows:
+          - {code: DIET, label: Diet order/tolerance, type: text}
+          - {code: APPETITE, label: Appetite, type: choice, choices: [Good, Fair, Poor, Nil]}
+          - {code: NAUSEA, label: Nausea, type: boolean}
+          - {code: VOMIT, label: Emesis, unit: mL, type: number}
+          - {code: ABDOMEN, label: Abdomen, type: choice, choices: [Soft, Distended, Tender, Rigid]}
+          - {code: BOWEL_SOUNDS, label: Bowel sounds, type: choice, choices: [Normal, Hyperactive, Hypoactive, Absent]}
+          - {code: STOOL, label: Stool occurrence/description, type: text}
+          - {code: FEED_ROUTE, label: Feeding route, type: choice, choices: [Oral, NG, PEG, TPN, NPO]}
+          - {code: FEED_VOLUME, label: Enteral feed volume, unit: mL, type: number}
+      - name: Genitourinary and Fluid Balance
+        rows:
+          - {code: URINE_OUTPUT, label: Urine output, unit: mL, type: number, device_capable: true}
+          - {code: URINE_COLOUR, label: Urine colour, type: choice, choices: [Clear, Amber, Dark, Blood-stained, Cloudy]}
+          - {code: CATHETER, label: Urinary catheter, type: choice, choices: [None, Urethral, Suprapubic, Nephrostomy]}
+          - {code: ORAL_INTAKE, label: Oral intake, unit: mL, type: number}
+          - {code: IV_INTAKE, label: IV intake, unit: mL, type: number, device_capable: true}
+          - {code: BLOOD_INTAKE, label: Blood product intake, unit: mL, type: number}
+          - {code: DRAIN_OUTPUT, label: Drain output, unit: mL, type: number}
+          - {code: NET_BALANCE, label: Net fluid balance, unit: mL, type: calculated}
+          - {code: WEIGHT, label: Weight, unit: kg, type: number, device_capable: true}
+      - name: Skin, Wounds and Pressure Injury
+        rows:
+          - {code: SKIN, label: Skin assessment, type: text}
+          - {code: BRADEN, label: Pressure injury risk score, type: number}
+          - {code: PRESSURE_AREA, label: Pressure area findings, type: text}
+          - {code: WOUND_SITE, label: Wound site, type: text}
+          - {code: WOUND_TYPE, label: Wound type, type: choice, choices: [Surgical, Pressure injury, Traumatic, Diabetic, Venous, Arterial, Burn, Other]}
+          - {code: WOUND_STAGE, label: Pressure injury stage, type: choice, choices: [Not applicable, Stage 1, Stage 2, Stage 3, Stage 4, Unstageable, Deep tissue injury]}
+          - {code: WOUND_LENGTH, label: Wound length, unit: cm, type: number}
+          - {code: WOUND_WIDTH, label: Wound width, unit: cm, type: number}
+          - {code: WOUND_DEPTH, label: Wound depth, unit: cm, type: number}
+          - {code: WOUND_APPEARANCE, label: Wound bed / appearance, type: text}
+          - {code: WOUND_DRAINAGE, label: Drainage amount and character, type: text}
+          - {code: WOUND_ODOR, label: Odour, type: choice, choices: [None, Mild, Moderate, Strong]}
+          - {code: PERIWOUND, label: Periwound skin, type: text}
+          - {code: WOUND_CLEANSING, label: Cleansing performed, type: text}
+          - {code: WOUND_DRESSING_PRODUCT, label: Dressing product applied, type: text}
+          - {code: DRESSING, label: Dressing status, type: choice, choices: [Clean/dry/intact, Saturated, Loose, Changed]}
+          - {code: INCISION, label: Surgical incision, type: choice, choices: [Approximated, Red, Draining, Dehisced, Not applicable]}
+      - name: Mobility, Safety and Activities of Daily Living
+        rows:
+          - {code: MOBILITY, label: Mobility, type: choice, choices: [Independent, Supervision, One-person assist, Two-person assist, Bedbound]}
+          - {code: FALL_RISK, label: Fall risk score, type: number}
+          - {code: POSITION, label: Position, type: choice, choices: [Supine, Prone, Left, Right, Sitting, Ambulating]}
+          - {code: REPOSITIONED, label: Repositioned, type: boolean}
+          - {code: RESTRAINT, label: Restraint status, type: choice, choices: [None, Physical, Chemical]}
+          - {code: BATHING, label: Bathing / bed bath, type: choice, choices: [Independent, Setup assistance, Partial bed bath, Complete bed bath, Shower, Refused, Not due]}
+          - {code: ORAL_CARE, label: Oral care, type: choice, choices: [Independent, Assisted, Performed, Refused, Not due]}
+          - {code: LINEN_CHANGE, label: Bed linen change, type: choice, choices: [Complete, Partial, Not required, Refused]}
+          - {code: BED_ASSESSMENT, label: Bed and environment safety assessment, type: multiselect, choices: [Bed low and locked, Call bell accessible, Side rails appropriate, Brakes locked, Alarm active, Clutter free, Fall mat present]}
+          - {code: HYGIENE, label: Hygiene care narrative, type: text}
+          - {code: ELIMINATION_ASSIST, label: Elimination assistance, type: text}
+      - name: Lines, Drains, Airways and Devices
+        rows:
+          - {code: PIV, label: Peripheral IV, type: text}
+          - {code: CVC, label: Central venous catheter, type: text}
+          - {code: ART_LINE, label: Arterial line, type: text}
+          - {code: NG_TUBE, label: NG/OG tube, type: text}
+          - {code: TRACHEOSTOMY, label: Tracheostomy, type: text}
+          - {code: SURGICAL_DRAIN, label: Surgical drain, type: text}
+          - {code: DEVICE_SITE, label: Device site assessment, type: text}
+      - name: Psychosocial, Education and Care Coordination
+        rows:
+          - {code: MOOD, label: Mood/behaviour, type: text}
+          - {code: SLEEP, label: Sleep/rest, type: text}
+          - {code: FAMILY, label: Family/support presence, type: text}
+          - {code: EDUCATION, label: Education provided, type: text}
+          - {code: INTERPRETER, label: Interpreter required, type: boolean}
+          - {code: DISCHARGE_BARRIER, label: Discharge barriers, type: text}
+          - {code: HANDOFF, label: Shift handoff summary, type: text}
+  - code: ICU_DEVICE
+    name: Critical Care Device and Ventilator Flowsheet
+    cadence_minutes: 5
+    departments: [Adult ICU, Paediatric ICU, Cardiac ICU, HDU]
+    parameters: [Heart rate, Arterial pressure, SpO2, Respiratory rate, FiO2, PEEP, Tidal volume]
+    groups:
+      - name: Hemodynamics
+        rows:
+          - {code: ECG_HR, label: ECG heart rate, unit: bpm, type: number, device_capable: true}
+          - {code: ART_SBP, label: Arterial systolic pressure, unit: mmHg, type: number, device_capable: true}
+          - {code: ART_DBP, label: Arterial diastolic pressure, unit: mmHg, type: number, device_capable: true}
+          - {code: ART_MAP, label: Arterial mean pressure, unit: mmHg, type: number, device_capable: true}
+          - {code: CVP, label: Central venous pressure, unit: mmHg, type: number, device_capable: true}
+          - {code: PAP, label: Pulmonary artery pressure, unit: mmHg, type: text, device_capable: true}
+          - {code: CO, label: Cardiac output, unit: L/min, type: number, device_capable: true}
+          - {code: CI, label: Cardiac index, unit: L/min/m², type: number, device_capable: true}
+          - {code: SVR, label: Systemic vascular resistance, unit: dyn·s/cm5, type: number, device_capable: true}
+      - name: Ventilator
+        rows:
+          - {code: VENT_MODE, label: Ventilator mode, type: text, device_capable: true}
+          - {code: FIO2, label: FiO2, unit: '%', type: number, device_capable: true}
+          - {code: SET_RR, label: Set respiratory rate, unit: /min, type: number, device_capable: true}
+          - {code: TOTAL_RR, label: Total respiratory rate, unit: /min, type: number, device_capable: true}
+          - {code: TV_SET, label: Set tidal volume, unit: mL, type: number, device_capable: true}
+          - {code: TV_EXHALED, label: Exhaled tidal volume, unit: mL, type: number, device_capable: true}
+          - {code: PEEP, label: PEEP, unit: cmH2O, type: number, device_capable: true}
+          - {code: PIP, label: Peak inspiratory pressure, unit: cmH2O, type: number, device_capable: true}
+          - {code: PLATEAU, label: Plateau pressure, unit: cmH2O, type: number, device_capable: true}
+          - {code: MINUTE_VOLUME, label: Minute ventilation, unit: L/min, type: number, device_capable: true}
+          - {code: ETCO2, label: End-tidal CO2, unit: mmHg, type: number, device_capable: true}
+      - name: Sedation, Paralysis and Delirium
+        rows:
+          - {code: RASS, label: RASS, type: number}
+          - {code: CPOT, label: CPOT pain score, type: number}
+          - {code: CAM_ICU, label: CAM-ICU, type: choice, choices: [Positive, Negative, Unable]}
+          - {code: TOF, label: Train of four, type: text, device_capable: true}
+          - {code: SEDATION_HOLD, label: Sedation interruption, type: choice, choices: [Done, Contraindicated, Not due]}
+      - name: Renal and Continuous Therapies
+        rows:
+          - {code: HOURLY_URINE, label: Hourly urine output, unit: mL, type: number}
+          - {code: CRRT_MODE, label: CRRT mode, type: text, device_capable: true}
+          - {code: CRRT_BLOOD_FLOW, label: CRRT blood flow, unit: mL/min, type: number, device_capable: true}
+          - {code: CRRT_EFFLUENT, label: CRRT effluent, unit: mL/h, type: number, device_capable: true}
+          - {code: CRRT_NET, label: CRRT net removal, unit: mL/h, type: number, device_capable: true}
+  - code: MOI_TRAUMA_NV
+    name: Trauma and Neurovascular Observation
+    cadence_minutes: 15
+    departments: [Emergency, Orthopaedics, Neurosurgery, Trauma Ward]
+    parameters: [GCS, Pain score, Distal pulse, Capillary refill, Sensation, Motor function]
+    groups:
+      - name: Trauma Primary Survey
+        rows:
+          - {code: AIRWAY, label: Airway, type: choice, choices: [Patent, Threatened, Obstructed, Intubated]}
+          - {code: C_SPINE, label: Cervical spine protection, type: choice, choices: [Applied, Cleared, Not applied]}
+          - {code: BREATHING, label: Breathing, type: text}
+          - {code: CIRCULATION, label: Circulation/haemorrhage, type: text}
+          - {code: DISABILITY, label: Disability/GCS, type: text}
+          - {code: EXPOSURE, label: Exposure/environment, type: text}
+      - name: Limb Neurovascular
+        rows:
+          - {code: LIMB_SITE, label: Limb/site, type: text}
+          - {code: PAIN, label: Pain, unit: /10, type: number}
+          - {code: PULSE, label: Distal pulse, type: choice, choices: [Normal, Weak, Doppler, Absent]}
+          - {code: CAP_REFILL, label: Capillary refill, unit: seconds, type: number}
+          - {code: COLOUR, label: Colour, type: choice, choices: [Normal, Pale, Cyanosed, Mottled]}
+          - {code: TEMP_LIMB, label: Limb temperature, type: choice, choices: [Warm, Cool, Cold]}
+          - {code: SENSATION, label: Sensation, type: choice, choices: [Intact, Reduced, Absent]}
+          - {code: MOTOR, label: Motor function, type: choice, choices: [Intact, Reduced, Absent, Unable]}
+          - {code: SWELLING, label: Swelling/compartment concern, type: text}
+          - {code: CAST, label: Cast/splint/traction assessment, type: text}
+  - code: LABOUR
+    name: Labour, Delivery and Digital Partograph
+    cadence_minutes: 30
+    departments: [Antenatal, Labour Ward, Theatre, Postnatal]
+    parameters: [Cervical dilation, Fetal heart rate, Contractions, Maternal pulse, Maternal blood pressure, Membranes, Oxytocin]
+    groups:
+      - name: Fetal Wellbeing
+        rows:
+          - {code: FHR, label: Fetal heart rate, unit: bpm, type: number, device_capable: true}
+          - {code: LIQUOR, label: Liquor, type: choice, choices: [Intact, Clear, Meconium, Blood-stained, Absent]}
+          - {code: MOULDING, label: Moulding, type: choice, choices: [0, '+', '++', '+++']}
+          - {code: DECELERATIONS, label: Decelerations, type: text, device_capable: true}
+      - name: Labour Progress
+        rows:
+          - {code: DILATION, label: Cervical dilation, unit: cm, type: number}
+          - {code: DESCENT, label: Descent of head, unit: fifths, type: number}
+          - {code: CONTRACTIONS, label: Contractions per 10 min, type: number}
+          - {code: CONTRACTION_DURATION, label: Contraction duration, unit: seconds, type: number}
+          - {code: OXYTOCIN, label: Oxytocin rate, unit: mU/min, type: number, device_capable: true}
+      - name: Maternal
+        rows:
+          - {code: MAT_HR, label: Maternal pulse, unit: bpm, type: number, device_capable: true}
+          - {code: MAT_BP, label: Maternal blood pressure, unit: mmHg, type: text, device_capable: true}
+          - {code: MAT_TEMP, label: Maternal temperature, unit: °C, type: number, device_capable: true}
+          - {code: URINE, label: Urine volume/protein/ketones, type: text}
+          - {code: MEDS_FLUIDS, label: Drugs and IV fluids, type: text}
+  - code: PAEDIATRIC_INPATIENT
+    name: Paediatric Inpatient Flowsheet
+    cadence_minutes: 60
+    departments: [Paediatrics, Paediatric ICU, Neonatology]
+    parameters: [Heart rate, Respiratory rate, Temperature, SpO2, Pain score, Weight]
+    groups:
+      - name: Paediatric Observation
+        rows:
+          - {code: PEDS_HR, label: Heart rate, unit: bpm, type: number, device_capable: true}
+          - {code: PEDS_RR, label: Respiratory rate, unit: /min, type: number, device_capable: true}
+          - {code: PEDS_TEMP, label: Temperature, unit: °C, type: number, device_capable: true}
+          - {code: PEDS_SPO2, label: SpO2, unit: '%', type: number, device_capable: true}
+          - {code: PEWS, label: Paediatric early warning score, type: calculated}
+          - {code: WOB, label: Work of breathing, type: text}
+          - {code: PAIN_SCALE, label: Age-appropriate pain score, type: number}
+          - {code: WEIGHT, label: Weight, unit: kg, type: number, device_capable: true}
+          - {code: LENGTH, label: Length/height, unit: cm, type: number}
+          - {code: MUAC, label: MUAC, unit: cm, type: number}
+      - name: Feeding and Output
+        rows:
+          - {code: FEED_TYPE, label: Feed type, type: text}
+          - {code: FEED_AMOUNT, label: Feed amount, unit: mL, type: number}
+          - {code: BREASTFEED, label: Breastfeeding effectiveness, type: text}
+          - {code: URINE_DIAPER, label: Urine/diaper output, type: text}
+          - {code: STOOL_PEDS, label: Stool, type: text}
+  - code: NEONATAL
+    name: Neonatal and NICU Flowsheet
+    cadence_minutes: 30
+    departments: [Neonatology, NICU, Newborn Unit]
+    parameters: [Temperature, Heart rate, Respiratory rate, SpO2, Weight, Feed volume]
+    groups:
+      - name: Neonatal Observation
+        rows:
+          - {code: NEO_TEMP, label: Temperature, unit: °C, type: number, device_capable: true}
+          - {code: NEO_HR, label: Heart rate, unit: bpm, type: number, device_capable: true}
+          - {code: NEO_RR, label: Respiratory rate, unit: /min, type: number, device_capable: true}
+          - {code: PRE_DUCTAL, label: Pre-ductal SpO2, unit: '%', type: number, device_capable: true}
+          - {code: POST_DUCTAL, label: Post-ductal SpO2, unit: '%', type: number, device_capable: true}
+          - {code: APNOEA, label: Apnoea/bradycardia event, type: text, device_capable: true}
+          - {code: NEO_WEIGHT, label: Weight, unit: g, type: number, device_capable: true}
+          - {code: GLUCOSE, label: Blood glucose, unit: mmol/L, type: number, device_capable: true}
+          - {code: JAUNDICE, label: Jaundice/bilirubin, type: text}
+          - {code: CORD, label: Cord assessment, type: text}
+      - name: Neonatal Respiratory Support
+        rows:
+          - {code: NEO_SUPPORT, label: Support mode, type: choice, choices: [Room air, Nasal oxygen, CPAP, NIPPV, Ventilator]}
+          - {code: NEO_FIO2, label: FiO2, unit: '%', type: number, device_capable: true}
+          - {code: NEO_PEEP, label: PEEP/CPAP, unit: cmH2O, type: number, device_capable: true}
+      - name: Neonatal Feeding
+        rows:
+          - {code: NEO_FEED_ROUTE, label: Feed route, type: choice, choices: [Breast, Cup, NG, OG, IV/TPN]}
+          - {code: NEO_FEED_VOL, label: Feed volume, unit: mL, type: number}
+          - {code: NEO_RESIDUAL, label: Gastric residual, unit: mL, type: number}
+  - code: INFUSION
+    name: Oncology and Biologic Infusion Monitoring
+    cadence_minutes: 15
+    departments: [Oncology, Haematology, Infusion Unit]
+    parameters: [Infusion rate, Blood pressure, Pulse, Temperature, Reaction symptoms, Line assessment]
+    groups:
+      - name: Infusion
+        rows:
+          - {code: PROTOCOL, label: Protocol/regimen, type: text}
+          - {code: DRUG, label: Drug/product, type: text}
+          - {code: RATE, label: Infusion rate, unit: mL/h, type: number, device_capable: true}
+          - {code: VOLUME, label: Volume infused, unit: mL, type: number, device_capable: true}
+          - {code: LINE, label: Line/site assessment, type: text}
+          - {code: REACTION, label: Infusion reaction, type: choice, choices: [None, Mild, Moderate, Severe, Anaphylaxis]}
+          - {code: TOXICITY, label: Toxicity/adverse effects, type: text}
+  - code: DIALYSIS
+    name: Haemodialysis Treatment Flowsheet
+    cadence_minutes: 30
+    departments: [Renal, Dialysis]
+    parameters: [Blood pressure, Pulse, Blood flow, Dialysate flow, Ultrafiltration goal, Net removal]
+    groups:
+      - name: Dialysis Prescription and Treatment
+        rows:
+          - {code: ACCESS, label: Vascular access, type: text}
+          - {code: BLOOD_FLOW, label: Blood flow, unit: mL/min, type: number, device_capable: true}
+          - {code: DIALYSATE_FLOW, label: Dialysate flow, unit: mL/min, type: number, device_capable: true}
+          - {code: UF_GOAL, label: Ultrafiltration goal, unit: mL, type: number, device_capable: true}
+          - {code: UF_REMOVED, label: Ultrafiltration removed, unit: mL, type: number, device_capable: true}
+          - {code: TMP, label: Transmembrane pressure, unit: mmHg, type: number, device_capable: true}
+          - {code: KTV, label: Kt/V, type: number, device_capable: true}
+          - {code: DIALYSIS_EVENT, label: Treatment event/complication, type: text}
+  - code: POST_ANESTHESIA
+    name: Perioperative and Post-Anesthesia Flowsheet
+    cadence_minutes: 5
+    departments: [Theatre, Anesthesia, PACU]
+    parameters: [Heart rate, Blood pressure, SpO2, Respiratory rate, Pain score, Aldrete score]
+    groups:
+      - name: Intraoperative and PACU
+        rows:
+          - {code: ANES_TYPE, label: Anesthesia type, type: text}
+          - {code: AIRWAY_DEVICE, label: Airway device, type: text}
+          - {code: ETCO2, label: End-tidal CO2, unit: mmHg, type: number, device_capable: true}
+          - {code: ANES_AGENT, label: Anesthetic agent, type: text, device_capable: true}
+          - {code: BLOOD_LOSS, label: Estimated blood loss, unit: mL, type: number}
+          - {code: ALDRETE, label: Modified Aldrete score, type: number}
+          - {code: PONV, label: Nausea/vomiting, type: text}
+          - {code: PACU_DISPOSITION, label: PACU disposition, type: text}
+  - code: INTAKE_OUTPUT
+    name: Intake and Output
+    cadence_minutes: 60
+    departments: [All Inpatient Units]
+    parameters: [Oral intake, IV intake, Blood intake, Urine output, Drain output, Emesis, Net balance]
+    groups:
+      - name: Intake
+        rows:
+          - {code: ORAL, label: Oral intake, unit: mL, type: number}
+          - {code: ENTERAL, label: Enteral intake, unit: mL, type: number, device_capable: true}
+          - {code: IV, label: IV fluid intake, unit: mL, type: number, device_capable: true}
+          - {code: BLOOD, label: Blood products, unit: mL, type: number}
+          - {code: TPN, label: Parenteral nutrition, unit: mL, type: number, device_capable: true}
+      - name: Output
+        rows:
+          - {code: URINE, label: Urine output, unit: mL, type: number, device_capable: true}
+          - {code: EMESIS, label: Emesis, unit: mL, type: number}
+          - {code: STOOL, label: Stool, unit: mL, type: number}
+          - {code: DRAIN_1, label: Drain 1, unit: mL, type: number}
+          - {code: DRAIN_2, label: Drain 2, unit: mL, type: number}
+          - {code: CHEST_TUBE, label: Chest tube, unit: mL, type: number}
+          - {code: NET, label: Net balance, unit: mL, type: calculated}
