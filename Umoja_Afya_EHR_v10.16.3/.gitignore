@@ -8,3 +8,11 @@ __pycache__/
 
 secrets/preloaded_users.json
 secrets/review_preloaded_users.json
+# Production secrets and local repair backups
+secrets/
+*.before-*
+*.before-cache-policy
+*.before-head-support
+*.before-idempotency-gzip-fix
+*.before-disable-ratelimit
+*.before-facility-location-fix

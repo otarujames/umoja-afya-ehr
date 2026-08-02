@@ -10,9 +10,6 @@ services:
       traefik.http.routers.umoja-afya.service: "umoja-afya"
       traefik.http.routers.umoja-afya.tls: "true"
       traefik.http.routers.umoja-afya.tls.certresolver: "${TRAEFIK_CERTRESOLVER:-letsencrypt}"
-      traefik.http.middlewares.umoja-rate-limit.ratelimit.average: "1200"
-      traefik.http.middlewares.umoja-rate-limit.ratelimit.period: "1m"
-      traefik.http.routers.umoja-afya.middlewares: "umoja-rate-limit"
 
   # The host-port nginx proxy remains available for standalone deployments,
   # but is intentionally disabled when this Traefik overlay is used.

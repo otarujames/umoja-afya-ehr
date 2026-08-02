@@ -99,9 +99,12 @@ def upgrade():
                     "updated_at": now,
                 },
             )
-            order_set_id = result.lastrowid
-            if not order_set_id:
-                order_set_id = bind.execute(sa.text("SELECT id FROM order_set WHERE set_code = :code"), {"code": payload["set_code"]}).scalar_one()
+            order_set_id = bind.execute(
+                sa.text(
+                    "SELECT id FROM order_set WHERE set_code = :code"
+                ),
+                {"code": payload["set_code"]},
+            ).scalar_one()
             for sequence, item in enumerate(items):
                 bind.execute(
                     sa.text(
