@@ -16,3 +16,6 @@ secrets/
 *.before-idempotency-gzip-fix
 *.before-disable-ratelimit
 *.before-facility-location-fix
+
+# Local database backups
+backups/
